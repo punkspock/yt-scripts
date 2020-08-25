@@ -1,0 +1,161 @@
+"""
+
+07/22/2020
+Sydney Whilden
+Determine the ratio of ionized to neutral material.
+
+"""
+
+import yt
+from yt.units.yt_array import YTQuantity
+
+# constants
+oxy_mol = YTQuantity(15.9994, 'g/mol')  # oxygen mole mass
+hydro_mol = YTQuantity(2.016, 'g/mol')
+A = YTQuantity(6.023e23, 'mol**-1')  # Avogadro's number
+
+
+# functions
+def bulkSub(field, ad):
+    bulk_vel = YTQuantity(150, 'km/s')  # set bulk velocity
+    sub = ad['flash', 'velz'] - bulk_vel  # subtract bulk velocity
+    # why velz and not velx or vely? How do the velocity fields work?
+    return sub  # return velz field with bulk velocity subtracted
+
+
+def oxyIon(field, ad):
+    """
+    Return number of particles of all oxygen ions available.
+    """
+    all = ad['flash', 'o1  '] + ad['flash', 'o5  '] + ad['flash', 'o2  ']
+    + ad['flash', 'o3  '] + ad['flash', 'o4  '] + ad['flash', 'o6  ']
+    + ad['flash', 'o7  '] + ad['flash', 'o8  ']
+
+    return all
+
+
+def ionRatio(field, ad):
+    """
+    Return unprojected ratio of ionized oxygen to neutral oxygen.
+    """
+    ratio = ad['o_ionized'] / ad["flash", "o   "]
+
+    return ratio
+
+
+def metallicity(field, ad):
+    """
+    Calculate the ratio of neutral oxygen to neutral hydrogen.
+    THIS IS NOT A MASS RATIO. THIS IS IN PARTICLES/CUBIC CENTIMETER.
+    """
+    ohRatio = ad["flash", "h   "] / ad["flash", "o   "]
+
+    return ohRatio
+
+
+def hydroIon(field, ad):
+    """
+    Returns particles of ionized hydrogen.
+    THIS SHOULD GIVE A NUMBER OF PARTICLES, NOT A MASS.
+    """
+    particles = ad["flash", "o   "] * ad["O/H_metallicity"]
+
+    return particles
+
+
+def hydroMassNeutral(field, ad):
+    """
+    Returns mass of neutral hydrogen.
+    """
+    particles = ad["flash", "h   "]
+    mols = particles / A  # number of moles
+    grams = mols * hydro_mol
+
+    return grams
+
+
+def hydroMassIon(field, ad):
+    """
+    Return mass of all ionized hydrogen.
+    """
+    mols = ad["h_ionized"] / A
+    grams = mols * hydro_mol
+
+    return grams
+
+
+def hMass(field, ad):
+    """
+    Return mass of all hydrogen, ionized and neutral, in a cell.
+    """
+    mass = ad["h_ionized_mass"] + ad["h_neutral_mass"]
+
+    return mass
+
+
+if __name__ == "__main__":
+
+        # load data
+        file = "../Data/4.2.1.density_sap_hdf5_plt_cnt_0075"  # file name
+        ds = yt.load(file)  # load data
+
+        ad = ds.all_data()
+
+        # add bulk-subtracted velz field
+        yt.add_field(
+            ("gas", "bulk_subtracted"), units='km/s', function=bulkSub,
+            force_override=True)
+
+        # add field for amount (not mass) of ionized oxygen in a cell
+        yt.add_field(
+            ("gas", "o_ionized"), units='dimensionless', function=oxyIon,
+            force_override=True
+        )
+
+        # add field for ratio of ionized to neutral oxygen
+        yt.add_field(
+            ("gas", "ion_ratio"), units='dimensionless', function=ionRatio,
+            force_override=True
+        )
+
+        # add field for O/H metallicity
+        yt.add_field(
+            ("gas", "O/H_metallicity"), units='dimensionless',
+            function=metallicity, force_override=True
+        )
+
+        # add field for amount (not mass) of ionized hydrogen
+        yt.add_field(
+            ("gas", "h_ionized"), units='dimensionless', function=hydroIon,
+            force_override=True
+        )
+
+        # add field for mass of neutral hydrogen
+        yt.add_field(
+            ("gas", "h_neutral_mass"), units='g', function=hydroMassNeutral,
+            force_override=True
+        )
+
+        # add field for mass of ionized hydrogen
+        yt.add_field(
+            ("gas", "h_ionized_mass"), units='g', function=hydroMassIon,
+            force_override=True
+        )
+
+        # add field for total mass of hydrogen in a cell
+        yt.add_field(
+            ("gas", "h_mass"), units='g', function=hMass,
+            force_override=True
+        )
+        # apply velocity cut
+        # the cut region is your data source for projections now
+        cut = ad.cut_region(["obj['bulk_subtracted'] <= 100"])
+        # unsure of numbers used for this cut.
+
+        # plot projection of ion ratio
+        plot3 = yt.ProjectionPlot(ds, 'x', 'ion_ratio', data_source=cut)
+
+        # save plots
+        # plot1.save("../Plots/IonizedRatio/oxygen_ionized_mass.png")
+        # plot2.save("../Plots/IonizedRatio/oxygen_neutral_mass.png")
+        plot3.save("../Plots/IonizedRatio/ionized_neutral_ratio.png")

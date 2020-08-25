@@ -1,0 +1,34 @@
+"""
+Sydney Whilden
+08/11/2020
+
+Calculate O VI/O I and plot as a function of temperature.
+"""
+
+import OH_fields as oh  # numpy and YT are imported through this script
+import matplotlib.pyplot as plt
+
+if __name__ == "__main__":
+    ds, ad = oh.loadData(oh.file)  # load data file into yt
+    oh.addFields()  # add all the derived fields defined in oh
+    cut = oh.velocityCut(ad)
+
+    # CALCULATE
+    neutral = cut["o_neutral_number"]
+    neutral = neutral[(~oh.np.isnan(neutral))]  # try to avoid dividing by zero
+    ion_fraction = cut["OVI_number"] / neutral
+    log_ion_fraction = oh.np.log10(ion_fraction)
+
+    # PLOT
+    log_temp = oh.np.log10(cut["temperature"])
+    fig = plt.figure(figsize=(15, 10))
+    plt.scatter(log_temp, log_ion_fraction, s=4)
+    # s=4 for consistency with Eric's
+    plt.xlabel("log T (K)")
+    plt.ylabel("[O VI/O I]")
+    # plt.ylim(0, 10)
+    # plt.xlim(0, 9)
+    plt.title("O VI/O I Over Temperature, %s" % (oh.time))
+    plt.savefig("../Plots/IonizedRatio/ion_fraction_%s.png" % (oh.time))
+    plt.close()
+    # plt.show()  # test
