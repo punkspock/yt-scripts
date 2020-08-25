@@ -62,7 +62,11 @@ def lambdaT(field, ad):
     e = 4.84925514e+02
     f = -6.58894838e+02
 
+<<<<<<< HEAD
     lambdaT = []  # this can go. not even used
+=======
+    lambdaT = []
+>>>>>>> origin/master
 
     # you have to do the math on the entire array at once.
     x = np.log10(ad["temp"])  # log10 of temperature
@@ -135,6 +139,7 @@ if __name__ == "__main__":
     # plt2 = yt.ProjectionPlot(
     #     ds, "x", "cooling_function", weight_field="number_density_squared"
     #     )
+<<<<<<< HEAD
 
     # just trying something out.
     # pj = ds.proj("cooling_rate", 0)
@@ -142,3 +147,5 @@ if __name__ == "__main__":
     # ds2 = yt.load("x_projection.h5")
     # ad2 = ds2.all_data()
     # ds2.field_list
+=======
+>>>>>>> origin/master
