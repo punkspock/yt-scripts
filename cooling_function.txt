@@ -1,3 +1,10 @@
+"""
+From 05/28(???)/2020
+
+This script is a supplement. I used it to calculate the cooling function
+coefficients that I hard-coded into cooling_rate.py.
+"""
+
 import numpy as np
 import pandas as pd
 
@@ -28,11 +35,7 @@ if __name__ == "__main__":
     filename = "../Data/SutherlandDopita/m-00.csv"
     df, logTempColumn, logLambdaColumn = loadCoolingData(filename)
     # 5th-degree polynomial
-<<<<<<< HEAD
     function = np.polyfit(logTempColumn, logLambdaColumn, 5)
-=======
-    function = np.polyfit(logTempColumn, logLambdaColumn, 4)
->>>>>>> origin/master
     print(function)  # get coefficients
 
     # i'd like to visually check how close that approximation is.
