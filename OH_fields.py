@@ -60,7 +60,7 @@ def velocityCut(ad):
     z-direction velocity (I think) greater than -50 km/s.
 
     """
-    cut = ad.cut_region(["obj['bulk_subtracted'] <= -50"])
+    cut = ad.cut_region(["obj['bulk_subtracted'] <= -100"])
 
     return cut
 

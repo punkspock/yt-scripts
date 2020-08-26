@@ -28,11 +28,9 @@ if __name__ == "__main__":
     filename = "../Data/SutherlandDopita/m-00.csv"
     df, logTempColumn, logLambdaColumn = loadCoolingData(filename)
     # 5th-degree polynomial
-<<<<<<< HEAD
+
     function = np.polyfit(logTempColumn, logLambdaColumn, 5)
-=======
     function = np.polyfit(logTempColumn, logLambdaColumn, 4)
->>>>>>> origin/master
     print(function)  # get coefficients
 
     # i'd like to visually check how close that approximation is.
