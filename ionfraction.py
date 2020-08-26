@@ -16,7 +16,8 @@ if __name__ == "__main__":
 
     # CALCULATE
     t_o = cut["o_total_number"]
-    t_o = t_o[(~oh.np.isnan(t_o))]  # try to avoid dividing by zero
+    t_o = t_o[(~oh.np.isnan(t_o)) & (~oh.np.isinf(t_o))]
+    # try to avoid dividing by zero
     ion_fraction = cut["OVI_number"] / t_o
     log_ion_fraction = oh.np.log10(ion_fraction)
 
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     # s=4 for consistency with Eric's
     plt.xlabel("log T (K)")
     plt.ylabel("log (O VI/O)")
-    # plt.ylim(0, 10)
+    # plt.ylim(-5, 5)
     plt.xlim(0, 8)
     plt.title("O VI/O Over Temperature, %s" % (oh.time))
     plt.savefig("../Plots/IonizedRatio/ion_fraction_%s.png" % (oh.time))

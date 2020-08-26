@@ -20,8 +20,8 @@ Myr100 = "../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
 Myr200 = "../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
 
 # change this to change plot titles in other scripts
-file = Myr100
-time = "t=100 Myr"
+file = Myr200
+time = "t=200 Myr"
 
 oxy_mol = YTQuantity(15.9994, 'g/mol')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g/mol')  # correct value is NOT 2.016 g/mol
@@ -47,7 +47,8 @@ def bulkSub(field, ad):
 
     """
     bulk_vel = YTQuantity(150, 'km/s')  # set bulk velocity
-    sub = ad['flash', 'velz'] - bulk_vel  # subtract bulk velocity
+    sub = ad['flash', 'velz'].in_units('km/s') - bulk_vel
+    # subtract bulk velocity
     # why velz and not velx or vely? How do the velocity fields work?
 
     return sub  # return velz field with bulk velocity subtracted
@@ -57,7 +58,7 @@ def velocityCut(ad):
     """
 
     Perform velocity cut on data set. Exclude anything with a
-    z-direction velocity (I think) greater than -50 km/s.
+    z-direction velocity (I think) greater than -100 km/s.
 
     """
     cut = ad.cut_region(["obj['bulk_subtracted'] <= -100"])
