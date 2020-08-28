@@ -183,8 +183,8 @@ plt.figure()
 plt.scatter(x,y2,s=4)
 plt.xlabel('Log(T)')
 plt.ylabel('Log of Ionization Fraction of OVI')
-plt.savefig('Scatter_OVI_Young.png')
-plt.close()
+plt.savefig('../../Plots/Scatter_OVI_Young.png')
+#plt.close()
 
 
 # x = np.log10(cut3['temperature'])

@@ -16,6 +16,7 @@ from yt.units.yt_array import YTQuantity
 import numpy as np  # used in scripts that import this script
 
 # CONSTANTS
+Myr75 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0075"
 Myr100 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
 Myr200 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
 
@@ -70,10 +71,10 @@ def oxyMassFraction(field, ad):
     Returns fraction of total mass represented by all oxygen, neutral AND
     ionized at all available levels.
     """
-    all = ad['flash', 'o   '] + ad['flash', 'o1  '] + ad['flash', 'o2  ']
-    + ad['flash', 'o3  '] + ad['flash', 'o4  '] + ad['flash', 'o5  ']
-    + ad['flash', 'o6  '] + ad['flash', 'o7  '] + ad['flash', 'o8  ']
-
+    all = (ad['flash', 'o   '] + ad['flash', 'o1  '] + ad['flash', 'o2  ']
+    	+ ad['flash', 'o3  '] + ad['flash', 'o4  '] + ad['flash', 'o5  ']
+    	+ ad['flash', 'o6  '] + ad['flash', 'o7  '] + ad['flash', 'o8  ']
+	)
     return all
 
 
@@ -81,10 +82,10 @@ def oxyIonMass(field, ad):
     """
     Returns total cell mass represented by all oxygen ions available.
     """
-    all = ad['flash', 'o1  '] + ad['flash', 'o5  '] + ad['flash', 'o2  ']
-    + ad['flash', 'o3  '] + ad['flash', 'o4  '] + ad['flash', 'o6  ']
-    + ad['flash', 'o7  '] + ad['flash', 'o8  ']  # a fraction
-
+    all = (ad['flash', 'o1  '] + ad['flash', 'o5  '] + ad['flash', 'o2  ']
+    	+ ad['flash', 'o3  '] + ad['flash', 'o4  '] + ad['flash', 'o6  ']
+    	+ ad['flash', 'o7  '] + ad['flash', 'o8  ']  # a fraction
+	)
     mass = all * ad["density"] * ad["cell_volume"]  # result in g
 
     return mass

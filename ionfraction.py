@@ -2,8 +2,8 @@
 Sydney Whilden
 08/11/2020
 
-Calculate O VI/O I and plot as a function of temperature.
-*** Change to over TOTAL OXYGEN
+Calculate O VI/O and plot as a function of temperature.
+
 """
 
 import OH_fields as oh  # numpy and YT are imported through this script
@@ -16,7 +16,7 @@ if __name__ == "__main__":
 
     # CALCULATE
     t_o = cut["o_total_number"]
-    t_o = t_o[(~oh.np.isnan(t_o))]  # try to avoid dividing by zero
+    # t_o = t_o[(~oh.np.isnan(t_o))]  # try to avoid dividing by zero
     ion_fraction = cut["OVI_number"] / t_o
     log_ion_fraction = oh.np.log10(ion_fraction)
 
