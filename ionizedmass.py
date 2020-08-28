@@ -35,6 +35,6 @@ if __name__ == "__main__":
         "Mass of Ionized and Neutral Hydrogen Over Temperature, %s" %
         (oh.time)
         )
-    plt.savefig("../Plots/IonizedRatio/ionized_neutral_%s.png" % (oh.time))
+    plt.savefig("../../Plots/ionized_neutral_%s.png" % (oh.time))
     plt.close()
     

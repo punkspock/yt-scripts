@@ -30,6 +30,6 @@ if __name__ == "__main__":
     # plt.ylim(0, 10)
     plt.xlim(0, 8)
     plt.title("O VI/O Over Temperature, %s" % (oh.time))
-    plt.savefig("../Plots/IonizedRatio/ion_fraction_%s.png" % (oh.time))
+    plt.savefig("../../Plots/ion_fraction_%s.png" % (oh.time))
     plt.close()
     # plt.show()  # test

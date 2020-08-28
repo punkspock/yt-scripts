@@ -16,12 +16,12 @@ from yt.units.yt_array import YTQuantity
 import numpy as np  # used in scripts that import this script
 
 # CONSTANTS
-Myr100 = "../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
-Myr200 = "../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
+Myr100 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
+Myr200 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
 
 # change this to change plot titles in other scripts
-file = Myr100
-time = "t=100 Myr"
+file = Myr200
+time = "t=200 Myr"
 
 oxy_mol = YTQuantity(15.9994, 'g/mol')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g/mol')  # correct value is NOT 2.016 g/mol

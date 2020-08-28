@@ -43,5 +43,5 @@ if __name__ == "__main__":
     axs[0].legend()
     axs[1].legend()
     axs[2].legend()
-    plt.savefig('../Plots/scatter_all_O.png')
+    plt.savefig('../../Plots/scatter_all_O.png')
     plt.close()
