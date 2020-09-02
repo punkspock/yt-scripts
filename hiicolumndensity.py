@@ -9,6 +9,9 @@ See page 1058 of Fox (2010)
 
 import OH_fields as oh
 import OHmetallicity as om
+import ionfraction as ifr
+from sympy import diff, exp
+from sympy.abc import x, y
 
 if __name__ == "__main__":
     ds, ad = oh.loadData(oh.file)  # load data file into yt
@@ -22,7 +25,7 @@ if __name__ == "__main__":
     # log_ion_fraction = oh.np.log10(ion_fraction)
 
     # don't necessarily do this with max
-    if_max = oh.np.max(ion_fraction)  # max value of O VI/O I
+    # if_max = oh.np.max(ion_fraction)  # max value of O VI/O I
 
     # oxygen abundance
     proj_x = ds.proj("OVI_number", "x", data_source=cut)
@@ -32,6 +35,7 @@ if __name__ == "__main__":
     o5cd = proj_x["OVI_number"]  # O VI column density
     o5cd_mean = oh.np.mean(o5cd)
 
-    h2cd = o5cd_mean / (if_max * mean_o)
+    # h2cd = o5cd_mean / (if_max * mean_o)
+    h2cd = o5cd_mean / (ifr.mean * mean_o)
 
     print("N(H II)_(O VI) >= %f" % (h2cd))
