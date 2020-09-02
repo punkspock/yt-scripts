@@ -53,7 +53,7 @@ def express5(x,  y):
 
     """
     a, b, c, d, e, f = oh.np.polyfit(x, y, 5)
-    
+
     # can't write it like below until you're using sympy. x is an array rn 
     # expr = a*x**5 + b*x**4 + c*x**3 + d*x**2 + e*x + f
 
