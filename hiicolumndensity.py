@@ -12,6 +12,7 @@ import OHmetallicity as om
 import ionfraction as ifr
 from sympy import diff, exp
 from sympy.abc import x, y
+from decimal import Decimal
 
 if __name__ == "__main__":
     ds, ad = oh.loadData(oh.file)  # load data file into yt
@@ -19,10 +20,19 @@ if __name__ == "__main__":
     cut = oh.velocityCut(ad)
 
     # CALCULATE
-    total = cut["o_total_number"]
-    total = total[(~oh.np.isnan(total))]  # try to avoid dividing by zero
-    ion_fraction = cut["OVI_number"] / total
-    # log_ion_fraction = oh.np.log10(ion_fraction)
+    # (O VI/O) mean pulled from other script
+    ionFraction = cut["OVI_number"] / cut["o_total_number"]
+    logIonFraction = oh.np.log10(ionFraction)
+    meanFrac = oh.np.mean(ionFraction) 
+
+    temp = cut["temperature"]
+    logTemp = oh.np.log10(temp)
+    
+    # relationship between logTemp and logIonFraction
+    a, b, c, d, e, f = ifr.express5(logTemp, logIonFraction)  # get coefficients
+    expr = a*x**5 + b*x**4 + c*x**3 + d*x**2 + e*x + f  # write expression out
+    FT = 1 / expr 
+    # der = diff(expr, x)  # use symbolic differentiation to take derivative
 
     # don't necessarily do this with max
     # if_max = oh.np.max(ion_fraction)  # max value of O VI/O I
@@ -35,7 +45,15 @@ if __name__ == "__main__":
     o5cd = proj_x["OVI_number"]  # O VI column density
     o5cd_mean = oh.np.mean(o5cd)
 
-    # h2cd = o5cd_mean / (if_max * mean_o)
-    h2cd = o5cd_mean / (ifr.mean * mean_o)
+    
 
-    print("N(H II)_(O VI) >= %f" % (h2cd))
+    # h2cd = o5cd_mean / (if_max * mean_o)
+    h2cd = o5cd_mean / (meanFrac * mean_o)
+    h2cd = h2cd / oh.M_sun
+
+    # with the fancy expression
+    C = (o5cd_mean / mean_o)  # treat like a constant
+    formula = C * FT 
+    der = diff(formula, x)
+
+    print("Mass of H II associated with O VI: %.2E" % Decimal(h2cd))
