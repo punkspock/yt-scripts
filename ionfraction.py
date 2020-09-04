@@ -32,7 +32,7 @@ def plot(x, y):
 
     """
     fig = plt.figure(figsize=(15, 10))
-    plt.scatter(x, y, s=4) # did s=4 for consistency with Eric's
+    plt.scatter(x, y, s=4)  # did s=4 for consistency with Eric's
     plt.xlabel("log T (K)")
     plt.ylabel("log (O VI/O)")
     plt.xlim(0, 8)
@@ -54,7 +54,7 @@ def express5(x,  y):
     """
     a, b, c, d, e, f = oh.np.polyfit(x, y, 5)
 
-    # can't write it like below until you're using sympy. x is an array rn 
+    # can't write it like below until you're using sympy. x is an array rn
     # expr = a*x**5 + b*x**4 + c*x**3 + d*x**2 + e*x + f
 
     return a, b, c, d, e, f
@@ -81,18 +81,31 @@ if __name__ == "__main__":
     # CALCULATE
     ionFraction = ionFractionCalc()
     logIonFraction = oh.np.log10(ionFraction)
+    logIonFraction = logIonFraction[(~oh.np.isnan(logIonFraction)) & (
+        ~oh.np.isinf(logIonFraction))]
 
-    # PLOT
-    logTemp = oh.np.log10(cut["temperature"])
-    plot(logTemp, logIonFraction)
-
+    # find the mean value
     mean = oh.np.mean(ionFraction)
     print("Mean value of O VI/O: %f" % (mean))
 
+    # PLOT
+    temp = cut["temperature"]
+    logTemp = oh.np.log10(cut["temperature"])
+
+    # make basic plot of the curve BEFORE doing polyfit
+    plot(logTemp, logIonFraction)
+
+    # necessary for polyfit.
+    lT = logTemp[(~oh.np.isnan(logTemp)) & (~oh.np.isinf(logTemp))]
+    # make sure the arrays are the same length
+    # this is a temporary solution. not good if many data points removed
+    #   from logTemp.
+    lIF = logIonFraction[0:len(lT)]
+
     # now find the rate of change w/ respect to temperature
-    # have to do it with logTemp and logIonFraction because yt can't handle the numbers
-    #    you get when you square the temperature values
-    a, b, c, d, e, f = express5(logTemp, logIonFraction)
+    # have to do it with logTemp and logIonFraction because yt can't handle the
+    #    numbers you get when you square the temperature values
+    a, b, c, d, e, f = express5(lT, lIF)
 
     # plot the expression
     logCurve = []  # initialize
@@ -106,12 +119,10 @@ if __name__ == "__main__":
 
     fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
-    ax.scatter(logTemp, logIonFraction)
+    ax.scatter(logTemp, logIonFraction)  # use "old" versions of the arrays
     ax.plot(x, logCurve, c='r', linewidth=4)
-    plt.title("Polynomial fit of log(T) to log(O VI/O)")
+    plt.title("Polynomial fit of log(T) to log(O VI/O), %s" % (oh.time))
     plt.xlabel("log(T)")
     plt.ylabel("log(O VI/O)")
-    plt.savefig("../../Plots/curve.png")
+    plt.savefig("../../Plots/curve_%s.png" % (oh.time))
     plt.close()
-
-    #der = diff(expr, x)  # take derivative using symbolic differentiation
