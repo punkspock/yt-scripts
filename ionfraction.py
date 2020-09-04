@@ -98,12 +98,19 @@ if __name__ == "__main__":
     logCurve = []  # initialize
 
     # calculate using the coefficients we generated to see how the curve fits
-    for x in logTemp:
-        y = a*x**5 + b*x**4 + c*x**3 + d*x**2 + e*x + f
+    x = oh.np.linspace(2.5, 6.5, num=150)  # for curve-plotting purposes
+
+    for i in x:
+        y = a*i**5 + b*i**4 + c*i**3 + d*i**2 + e*i + f
         logCurve.append(y)
 
     fig = plt.figure(figsize=(15, 10))
-    plt.plot(logTemp, logCurve)
+    ax = fig.add_subplot(111)
+    ax.scatter(logTemp, logIonFraction)
+    ax.plot(x, logCurve, c='r', linewidth=4)
+    plt.title("Polynomial fit of log(T) to log(O VI/O)")
+    plt.xlabel("log(T)")
+    plt.ylabel("log(O VI/O)")
     plt.savefig("../../Plots/curve.png")
     plt.close()
 

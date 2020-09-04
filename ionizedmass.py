@@ -25,8 +25,8 @@ if __name__ == "__main__":
     log_ion = oh.np.log10(cut["h_ion_mass"] / M_sun)
 
     fig, ax = plt.subplots()
-    ax.scatter(log_temp, log_ntl, c="tab:blue", s=6, label="Neutral")
-    ax.scatter(log_temp, log_ion, c="tab:green", s=6, label="Ionized")
+    ax.scatter(log_temp, log_ntl, c="b", s=6, label="Neutral")
+    ax.scatter(log_temp, log_ion, c="g", s=6, label="Ionized")
     plt.xlabel("log T (K)")
     plt.ylabel("$M_{\odot}$")
     ax.legend()
