@@ -37,4 +37,3 @@ if __name__ == "__main__":
         )
     plt.savefig("../../Plots/ionized_neutral_%s.png" % (oh.time))
     plt.close()
-    

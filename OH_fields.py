@@ -21,13 +21,14 @@ Myr100 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
 Myr200 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
 
 # change this to change plot titles in other scripts
-file = Myr75
-time = "t=75 Myr"
+file = Myr200
+time = "t=200 Myr"
 
 oxy_mol = YTQuantity(15.9994, 'g/mol')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g/mol')  # correct value is NOT 2.016 g/mol
 A = YTQuantity(6.023e23, 'mol**-1')  # Avogadro's number
 M_sun = YTQuantity(2e33, 'g')
+mHydro = YTQuantity(1.67e-24, 'g')
 
 
 # FUNCTIONS
@@ -83,9 +84,9 @@ def oxyIonMass(field, ad):
     Returns total cell mass represented by all oxygen ions available.
     """
     all = (ad['flash', 'o1  '] + ad['flash', 'o5  '] + ad['flash', 'o2  ']
-    	+ ad['flash', 'o3  '] + ad['flash', 'o4  '] + ad['flash', 'o6  ']
-    	+ ad['flash', 'o7  '] + ad['flash', 'o8  ']  # a fraction
-	)
+        + ad['flash', 'o3  '] + ad['flash', 'o4  '] + ad['flash', 'o6  ']
+        + ad['flash', 'o7  '] + ad['flash', 'o8  ']  # a fraction
+        )
     mass = all * ad["density"] * ad["cell_volume"]  # result in g
 
     return mass
@@ -105,7 +106,7 @@ def oxyIonNumber(field, ad):
     Returns number density of all oxygen ions in a cell
     """
     mols = ad["o_ion_mass"] / oxy_mol  # divide by grams in a mole of O
-    particles = mols * A  # multiply by Avogadro's number
+    particles = mols * A / ad["cell_volume"] # multiply by Avogadro's number
 
     return particles
 
@@ -115,7 +116,7 @@ def oxyNeutralNumber(field, ad):
     Returns number density of neutral oxygen in cell
     """
     mols = ad["o_neutral_mass"] / oxy_mol  # divide by grams in a mole of O
-    particles = mols * A  # multiply by Avogadro's number
+    particles = mols * A / ad["cell_volume"] # multiply by Avogadro's number
 
     return particles
 
@@ -150,7 +151,7 @@ def o5number(field, ad):
 
     """
     mols = ad["OVI_mass"] / oxy_mol
-    particles = mols * A
+    particles = mols * A / ad["cell_volume"]
 
     return particles
 
@@ -192,7 +193,7 @@ def hNumber(field, ad):
     Calculate number density of all hydrogen in a cell.
     """
     mols = ad["h_total_mass"] / hydro_mol
-    particles = mols * A
+    particles = mols * A / ad["cell_volume"]
 
     return particles
 
@@ -204,7 +205,7 @@ def hIonNumber(field, ad):
 
     """
 
-    number = ad["h_total_number"] * ad["o_ion_fraction"]
+    number = (ad["h_total_number"] * ad["o_ion_fraction"])
 
     return number
 
@@ -230,6 +231,7 @@ def hNeutralNumber(field, ad):
     hydrogen by the fraction of oxygen that is ionized.
 
     """
+    # don't need to divide by cell volume because already did in making of
     number = ad["h_total_number"] * ad["o_neutral_fraction"]
 
     return number
@@ -280,18 +282,18 @@ def addFields():
     )
 
     yt.add_field(
-        ("gas", "o_ion_number"), units='dimensionless',
+        ("gas", "o_ion_number"), units='cm**-3',
         function=oxyIonNumber, force_override=True
     )
 
     yt.add_field(
-        ("gas", "o_neutral_number"), units='dimensionless',
+        ("gas", "o_neutral_number"), units='cm**-3',
         function=oxyNeutralNumber, force_override=True
     )
 
     # add field for total number density of oxygen
     yt.add_field(
-        ("gas", "o_total_number"), units='dimensionless',
+        ("gas", "o_total_number"), units='cm**-3',
         function=oxyNumber, force_override=True
     )
 
@@ -315,12 +317,12 @@ def addFields():
 
     # add field for total number density of hydrogen
     yt.add_field(
-        ("gas", "h_total_number"), units='dimensionless', function=hNumber,
+        ("gas", "h_total_number"), units='cm**-3', function=hNumber,
         force_override=True
     )
 
     yt.add_field(
-        ("gas", "h_ion_number"), units='dimensionless',
+        ("gas", "h_ion_number"), units='cm**-3',
         function=hIonNumber, force_override=True
     )
 
@@ -330,7 +332,7 @@ def addFields():
     )
 
     yt.add_field(
-        ("gas", "h_neutral_number"), units='dimensionless',
+        ("gas", "h_neutral_number"), units='cm**-3',
         function=hNeutralNumber, force_override=True
     )
 
@@ -345,7 +347,7 @@ def addFields():
     )
 
     yt.add_field(
-        ("gas", "OVI_number"), units='dimensionless', function=o5number,
+        ("gas", "OVI_number"), units='cm**-3', function=o5number,
         force_override=True
     )
 
