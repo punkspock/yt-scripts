@@ -6,6 +6,8 @@ if __name__ == "__main__":
     oh.addFields()
     cut = oh.velocityCut(ad)
 
+    wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
+
     M_sun = oh.M_sun
 
     # calculations
@@ -14,9 +16,10 @@ if __name__ == "__main__":
     hTotalMass = sum(cut["h_total_mass"]) / M_sun
 
     # print statements
-    print("Mass of ionized hydrogen: ", hIonMass)
-    print("Mass of neutral hydrogen: ", hNeutralMass)
-    print("Total hydrogen mass: ", hTotalMass)
+    wfile.write("\nMass of ionized hydrogen: {:.2e}".format(hIonMass))
+    wfile.write("\nMass of neutral hydrogen: {:.2e}".format(hNeutralMass))
+    wfile.write("\nTotal hydrogen mass: {:.2e}".format(hTotalMass))
+    wfile.close()
 
     # plot
     log_temp = oh.np.log10(cut["temperature"])

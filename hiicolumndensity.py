@@ -17,6 +17,7 @@ if __name__ == "__main__":
     ds, ad = oh.loadData(oh.file)  # load data file into yt
     oh.addFields()  # add all the derived fields defined in oh
     cut = oh.velocityCut(ad)
+    wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
 
     # CALCULATE
 
@@ -46,18 +47,17 @@ if __name__ == "__main__":
     # massHII = (NHII / oh.A) * oh.hydro_mol / oh.M_sun  # in solar masses
     massHII = NHII_mean * oh.mHydro  # along a sightline.
 
-    print(
-        "H II column density: {:.2e}\n".format(NHII_mean),
-        "H II mass using average O VI/O: {:.2e}".format(massHII)
-        )
-
     # N(H II) / N(H I)
     NHI = proj_x["h_neutral_number"]
     NHI_mean = oh.np.mean(NHI)
 
     IItoI = NHII_mean / NHI_mean
 
-    print("N(H II)/N(H I): {:.2e}".format(IItoI))
+    # record the findings.
+    wfile.write("\nH II column density: {:.2e}".format(NHII_mean))
+    wfile.write("\nH II mass using average O VI/O: {:.2e}".format(massHII))
+    wfile.write("\nN(H II)/N(H I): {:.2e}".format(IItoI))
+    wfile.close()
 
     # # calculate using cAlCuLuS
     # temp = cut["temperature"]
