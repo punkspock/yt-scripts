@@ -26,7 +26,6 @@ if __name__ == "__main__":
         "\nPredicted ionization fraction of oxygen: {:.2e}".format(oIonFrac)
         )
     wfile.write(
-        "\nPredicted ionization fraction of hydrogen:{:.2e}".format(
-        oNeutralFrac)
+        "\nPredicted ionization fraction of hydrogen:{:.2e}".format(hIonFrac)
         )
     wfile.close()

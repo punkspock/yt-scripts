@@ -21,8 +21,8 @@ Myr100 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
 Myr200 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
 
 # change this to change plot titles in other scripts
-file = Myr200
-time = "t=200 Myr"
+file = Myr75
+time = "t=75 Myr"
 
 oxy_mol = YTQuantity(15.9994, 'g/mol')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g/mol')  # correct value is NOT 2.016 g/mol
@@ -106,7 +106,7 @@ def oxyIonNumber(field, ad):
     Returns number density of all oxygen ions in a cell
     """
     mols = ad["o_ion_mass"] / oxy_mol  # divide by grams in a mole of O
-    particles = mols * A / ad["cell_volume"] # multiply by Avogadro's number
+    particles = mols * A / ad["cell_volume"]  # multiply by Avogadro's number
 
     return particles
 
@@ -159,7 +159,7 @@ def o5number(field, ad):
 def oIonFraction(field, ad):
     """
 
-    Returns the ratio of the number densities of ionized to neutral oxygen.
+    Returns the ratio of the numbers of ionized to neutral oxygen.
 
     """
     fraction = ad["o_ion_number"] / ad["o_total_number"]
@@ -201,7 +201,7 @@ def hNumber(field, ad):
 def hIonNumber(field, ad):
     """
 
-    Returns the number density of neutral hydrogen in a cell.
+    Returns the number density of neutral hydrogen atoms in a cell. g cm**-3
 
     """
 
@@ -218,7 +218,7 @@ def hIonMass(field, ad):
     multiplying by the molar mass of hydrogen to get a mass.
 
     """
-    mols = ad["h_ion_number"] / A  # divide by Avogadro's number
+    mols = ad["h_ion_number"] * ad["cell_volume"] / A
     grams = mols * hydro_mol  # multiply by grams/mole for hydrogen
 
     return grams
@@ -228,7 +228,7 @@ def hNeutralNumber(field, ad):
     """
 
     Returns number density of H I by multiplying total number density of
-    hydrogen by the fraction of oxygen that is ionized.
+    hydrogen by the fraction of oxygen that is ionized. g cm**-3
 
     """
     # don't need to divide by cell volume because already did in making of
@@ -245,7 +245,7 @@ def hNeutralMass(field, ad):
     mass of hydrogen.
 
     """
-    mols = ad["h_neutral_number"] / A
+    mols = ad["h_neutral_number"] * ad["cell_volume"] / A
     grams = mols * hydro_mol
 
     return grams

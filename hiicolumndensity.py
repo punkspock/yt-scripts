@@ -40,7 +40,7 @@ if __name__ == "__main__":
     # (O VI/O) mean pulled from other script
     ionFraction = proj_x["OVI_number"] / proj_x["o_total_number"]  # O VI/O
     ionFraction = ionFraction[(~oh.np.isnan(ionFraction))]
-    meanFrac = oh.np.max(ionFraction)  # average value of O VI/O
+    meanFrac = oh.np.mean(ionFraction)  # average value of O VI/O
 
     # calculate using avg O VI/O value (that's meanFrac)
     NHII_mean = constant * (1 / meanFrac)
@@ -54,7 +54,8 @@ if __name__ == "__main__":
     IItoI = NHII_mean / NHI_mean
 
     # record the findings.
-    wfile.write("\nH II column density: {:.2e}".format(NHII_mean))
+    wfile.write("\nH II mean column density: {:.2e}".format(NHII_mean))
+    wfile.write("\nH I mean column density: {:.2e}".format(NHI_mean))
     wfile.write("\nH II mass using average O VI/O: {:.2e}".format(massHII))
     wfile.write("\nN(H II)/N(H I): {:.2e}".format(IItoI))
     wfile.close()
@@ -69,11 +70,22 @@ if __name__ == "__main__":
     # lT = logTemp[(~oh.np.isnan(logTemp)) & (~oh.np.isinf(logTemp))]
     # lIF = logIonFraction[0:len(lT)]
 
-    # relationship between logTemp and logIonFraction
+    # # relationship between logTemp and logIonFraction
     # a, b, c, d, e, f = ifr.express5(lT, lIF)  # get coefficients
     # expr = a*x**5 + b*x**4 + c*x**3 + d*x**2 + e*x + f  # write expression out
     # FT = 1 / expr
     # der = diff(expr, x)  # use symbolic differentiation to take derivative
+
+    # # This gives wrong results.
+    # f = open("coefficients_%s.txt" % (oh.time), 'r')
+    # arr = f.readlines()  # array containing 1 string
+    # strings = arr[0].split(',')  # arr[0] is the string. array contents.
+    # coeffs = []  # initialize
+    # for i in strings[0:len(strings)-1]:  # let the f go. it's no longer usable
+    #     i = oh.np.float(i)
+    #     coeffs.append(i)
+    # a, b, c, d, e, = coeffs  # gonna try to get the f back later
+    # f.close()
 
     # don't necessarily do this with max
     # if_max = oh.np.max(ion_fraction)  # max value of O VI/O I

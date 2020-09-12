@@ -77,7 +77,7 @@ if __name__ == "__main__":
     ds, ad = oh.loadData(oh.file)  # load data file into yt
     oh.addFields()  # add all the derived fields defined in oh
     cut = oh.velocityCut(ad)
-    wfile = open("../../Plots/%s.txt" % (oh.time))
+    wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
 
     # CALCULATE
     ionFraction = ionFractionCalc()
@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     # find the mean value
     mean = oh.np.mean(ionFraction)
-    wfile.write("ionfraction.py: Mean value of O VI/O: %f" % (mean))
+    wfile.write("Mean value of O VI/O: %f" % (mean))
     wfile.close()
 
     # PLOT
@@ -128,3 +128,7 @@ if __name__ == "__main__":
     plt.ylabel("log(O VI/O)")
     plt.savefig("../../Plots/curve_%s.png" % (oh.time))
     plt.close()
+
+    f = open('coefficients_%s.txt' % (oh.time), 'w')
+    f.write("{},{},{},{},{},{}".format(a, b, c, d, e, f))
+    f.close()
