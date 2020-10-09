@@ -10,7 +10,7 @@ import OH_fields as oh  # numpy and YT are imported through this script
 import matplotlib.pyplot as plt
 
 
-def ionFractionCalc():
+def ionFractionCalc(cut):
     """
     Calculate O VI/O
     """
@@ -80,7 +80,7 @@ if __name__ == "__main__":
     wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
 
     # CALCULATE
-    ionFraction = ionFractionCalc()
+    ionFraction = ionFractionCalc(cut)
     logIonFraction = oh.np.log10(ionFraction)
     logIonFraction = logIonFraction[(~oh.np.isnan(logIonFraction)) & (
         ~oh.np.isinf(logIonFraction))]
