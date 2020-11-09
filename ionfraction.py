@@ -21,6 +21,17 @@ def ionFractionCalc(cut):
     return ionFraction
 
 
+def ionFractionNew(cut):
+    """
+    Calculate O VI/O
+    """
+
+    t_o = cut["o_total_number"]
+    ionFraction = cut["OVI_number"] / t_o * cut["change_factor"]
+
+    return ionFraction
+
+
 def plot(x, y):
     """
     Makes basic scatter plot of log O VI/O over log T
@@ -72,7 +83,6 @@ def express3(x, y):
     return a, b, c, d
 
 
-
 if __name__ == "__main__":
     ds, ad = oh.loadData(oh.file)  # load data file into yt
     oh.addFields()  # add all the derived fields defined in oh
@@ -80,7 +90,12 @@ if __name__ == "__main__":
     wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
 
     # CALCULATE
-    ionFraction = ionFractionCalc(cut)
+    q = input("Are you changing the abundance? (y/n): ")
+    if q == "n":
+        ionFraction = ionFractionCalc(cut)
+    elif q == "y":
+        ionFraction = ionFractionNew(cut)
+
     logIonFraction = oh.np.log10(ionFraction)
     logIonFraction = logIonFraction[(~oh.np.isnan(logIonFraction)) & (
         ~oh.np.isinf(logIonFraction))]

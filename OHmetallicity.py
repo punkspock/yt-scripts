@@ -14,6 +14,7 @@ if __name__ == "__main__":
     ds, ad = oh.loadData(oh.file)
     oh.addFields()
     cut = oh.velocityCut(ad)
+    wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
 
     # COLUMN DENSITY CALCULATIONS
     # Should probably change these to neutral numbers. Check on that.
@@ -59,8 +60,11 @@ if __name__ == "__main__":
     print("Metallicity in X, Y, Z directions: ", mean_mx, mean_my, mean_mz)
     # there's a divide by zero happening somewhere in here and i don't like it
 
+    wfile.write("\nMetallicity: %f" % (mean_mx))
+    wfile.close()
+
     # METHOD 2: Trying to reproduce Eric's results
-    factor = oh.hydro_mol / oh.oxy_mol  
+    factor = oh.hydro_mol / oh.oxy_mol
     mcy_x2 = proj_x["o   "] / proj_x["h1  "] * factor
     mcy_x2 = mcy_x2[(~oh.np.isnan(mcy_x2))]
     mcy_x2 = oh.np.log10(mcy_x2) - log_sun
