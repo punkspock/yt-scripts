@@ -23,8 +23,8 @@ if __name__ == "__main__":
 
     # OVI column density
     proj_x = ds.proj("OVI_number", "x", data_source=cut)  # make projection
-    o5cd = proj_x["OVI_number"]  # O VI column density
-    o5cdMean = oh.np.mean(o5cd)  # mean O VI column density
+    o6cd = proj_x["OVI_number"]  # O VI column density
+    o6cdMean = oh.np.mean(o5cd)  # mean O VI column density
 
     # oxygen abundance
     oAbundance = proj_x["o_neutral_number"] / proj_x["h_neutral_number"]
@@ -35,7 +35,7 @@ if __name__ == "__main__":
     # oAbundMean = 0.00004  # test
 
     # constant = o5cd / oAbundMean
-    constant = o5cdMean / oAbundMean  # constant values in the function
+    constant = o6cdMean / oAbundMean  # constant values in the function
 
     # (O VI/O) mean pulled from other script
     ionFraction = proj_x["OVI_number"] / proj_x["o_total_number"]  # O VI/O

@@ -14,15 +14,18 @@ statement in the addFields() function as well.
 import yt
 from yt.units.yt_array import YTQuantity
 import numpy as np  # used in scripts that import this script
+import sys
+
 
 # CONSTANTS
-Myr75 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0075"
-Myr100 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
-Myr200 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
-
-# change this to change plot titles in other scripts
-file = Myr200
-time = "t=200 Myr"
+# Myr75 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0075"
+# Myr100 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
+# Myr200 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
+#
+# # TODO: change this to change plot titles in other scripts
+# # TODO: change this to be from command line argument passed in scripts
+# file = Myr200
+# time = "t=200 Myr"
 
 oxy_mol = YTQuantity(15.9994, 'g/mol')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g/mol')  # correct value is NOT 2.016 g/mol
@@ -131,7 +134,7 @@ def oxyNumber(field, ad):
     return number
 
 
-def o5mass(field, ad):
+def o6mass(field, ad):
     """
 
     Returns the mass of O VI in a cell by multiplying the fraction of that
@@ -143,7 +146,7 @@ def o5mass(field, ad):
     return mass
 
 
-def o5number(field, ad):
+def o6number(field, ad):
     """
 
     Returns number density of O VI in a cell by dividing the mass by
@@ -327,6 +330,16 @@ def changeFactor(field, ad):
     return factor
 
 
+def scale(field, ad):
+    """
+    Returns scaling factor as an array.
+    """
+    metal = ad["o_total_number"] / ad["h_total_number"]
+    A = (1 / metal) * (10**-4.31)  # divide theirs by ours
+
+    return A
+
+
 def addFields():
     # ADD FIELDS
     # add bulk-subtracted velz field
@@ -406,12 +419,12 @@ def addFields():
     )
 
     yt.add_field(
-        ("gas", "OVI_mass"), units='g', function=o5mass,
+        ("gas", "OVI_mass"), units='g', function=o6mass,
         force_override=True
     )
 
     yt.add_field(
-        ("gas", "OVI_number"), units='cm**-3', function=o5number,
+        ("gas", "OVI_number"), units='cm**-3', function=o6number,
         force_override=True
     )
 
@@ -446,10 +459,46 @@ def addFields():
         ("change_factor"), units="dimensionless", function=changeFactor
     )
 
+    # add field to scale the metallicity
+    yt.add_field(
+        ("gas", "scale"), units='dimensionless', function=scale,
+        force_override=True
+    )
+
     return
 
 
-if __name__ == "__main__":
+def main(epoch):
+
+    file = ""  # initialize
+
+    if epoch == '75':
+        file = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0075"
+    elif epoch == '100':
+        file = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
+    elif epoch == '200':
+        file = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0200"
+    else:
+        print("Invalid argument for epoch.")
+
+    time = "t=%s Myr" % epoch
+
     ds, ad = loadData(file)  # load the file in YT
     addFields()  # add all the fields
-    cut = velocityCut(ad)
+    cut = velocityCut(ad)  # do velocity cut
+
+    return file, time, ds, ad, cut
+
+
+if __name__ == "__main__":
+
+    epoch = ""  # initialize
+
+    if len(sys.argv[1]) > 1:
+        epoch = str(sys.argv[1])
+    else:
+        epoch = 75
+        print("Running with default epoch.")
+    # get epoch as command line argument
+
+    file, time, ds, ad, cut = main(epoch)
