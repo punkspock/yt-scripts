@@ -12,7 +12,7 @@ import sys
 oxy_mol = oh.oxy_mol  # taking care of a bug
 A = oh.A
 
-def o1Number(field, ad):
+def o1Number(field, ad):  # OI
     mass = ad["flash", "o   "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
@@ -20,7 +20,7 @@ def o1Number(field, ad):
     return particles
 
 
-def o2Number(field, ad):
+def o2Number(field, ad):  # OII
     mass = ad["flash", "o1  "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
@@ -28,15 +28,15 @@ def o2Number(field, ad):
     return particles
 
 
-def o3Number(field, ad):
-    mass = ad["flash", "o2  "] * ad["density"] * ad["cell_volume"]
+def o3Number(field, ad):  # OIII
+    mass = ad['flash', 'o2  '] * ad['density'] * ad['cell_volume']
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
 
     return particles
 
 
-def o4Number(field, ad):
+def o4Number(field, ad):  # OIV
     mass = ad["flash", "o3  "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
@@ -44,7 +44,7 @@ def o4Number(field, ad):
     return particles
 
 
-def o5Number(field, ad):
+def o5Number(field, ad):  # OV
     mass = ad["flash", "o4  "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
@@ -55,7 +55,7 @@ def o5Number(field, ad):
 # OVI number already made in OH_fields.py
 
 
-def o7Number(field, ad):
+def o7Number(field, ad):  # OVII
     mass = ad["flash", "o6  "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
@@ -63,7 +63,7 @@ def o7Number(field, ad):
     return particles
 
 
-def o8Number(field, ad):
+def o8Number(field, ad):  # OVIII
     mass = ad["flash", "o7  "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
@@ -71,7 +71,7 @@ def o8Number(field, ad):
     return particles
 
 
-def o9Number(field, ad):
+def o9Number(field, ad):  # OIX
     mass = ad["flash", "o8  "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
     particles = mols * A / ad["cell_volume"]
@@ -80,56 +80,62 @@ def o9Number(field, ad):
 
 
 # scale them
-def scaled_o1(field, ad):
+def scaledO1(field, ad):
     scaled = ad['OI_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o2(field, ad):
+def scaledO2(field, ad):
     scaled = ad['OII_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o3(field, ad):
+def scaledO3(field, ad):
     scaled = ad['OIII_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o4(field, ad):
+def scaledO4(field, ad):
     scaled = ad['OIV_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o5(field, ad):
+def scaledO5(field, ad):
     scaled = ad['OV_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o6(field, ad):
+def scaledO6(field, ad):
     scaled = ad['OVI_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o7(field, ad):
+def scaledO7(field, ad):
     scaled = ad['OVII_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o8(field, ad):
+def scaledO8(field, ad):
     scaled = ad['OVIII_number'] * ad['scale']
 
     return scaled
 
 
-def scaled_o9(field, ad):
+def scaledO9(field, ad):
     scaled = ad['OIX_number'] * ad['scale']
+
+    return scaled
+
+
+def scaledAllO(field, ad):
+    scaled = ad['o_total_number'] * ad['scale']
 
     return scaled
 
@@ -137,72 +143,96 @@ def scaled_o9(field, ad):
 def addFields():
 
     oh.yt.add_field(
-        ('gas', 'OI_number'), units='cm**-3', function=o1Number
-    )
+        ('gas', 'OI_number'), units='cm**-3', function=o1Number,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OII_number'), units='cm**-3', function=o2Number
-    )
+        ('gas', 'OII_number'), units='cm**-3', function=o2Number,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OIII_number'), units='cm**-3', function=o3Number
-    )
+        ('gas', 'OIII_number'), units='cm**-3', function=o3Number,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OIV_number'), units='cm**-3', function=o3Number
-    )
+        ('gas', 'OIV_number'), units='cm**-3', function=o4Number,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OV_number'), units='cm**-3', function=o3Number
-    )
+        ('gas', 'OV_number'), units='cm**-3', function=o5Number,
+        force_override=True
+        )
+
+    # O VI number already exists in OH_fields.py
 
     oh.yt.add_field(
-        ('gas', 'OVII_number'), units='cm**-3', function=o3Number
-    )
+        ('gas', 'OVII_number'), units='cm**-3', function=o7Number,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OVIII_number'), units='cm**-3', function=o3Number
-    )
+        ('gas', 'OVIII_number'), units='cm**-3', function=o8Number,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OIX_number'), units='cm**-3', function=o3Number
-    )
+        ('gas', 'OIX_number'), units='cm**-3', function=o9Number,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OI_scaled'), units='cm**-3', function=scaled_o1
-    )
+        ('gas', 'OI_scaled'), units='cm**-3', function=scaledO1,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OII_scaled'), units='cm**-3', function=scaled_o2
-    )
+        ('gas', 'OII_scaled'), units='cm**-3', function=scaledO2,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OIII_scaled'), units='cm**-3', function=scaled_o3
-    )
+        ('gas', 'OIII_scaled'), units='cm**-3', function=scaledO3,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OIV_scaled'), units='cm**-3', function=scaled_o4
-    )
+        ('gas', 'OIV_scaled'), units='cm**-3', function=scaledO4,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OV_scaled'), units='cm**-3', function=scaled_o5
-    )
+        ('gas', 'OV_scaled'), units='cm**-3', function=scaledO5,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OVI_scaled'), units='cm**-3', function=scaled_o6
-    )
+        ('gas', 'OVI_scaled'), units='cm**-3', function=scaledO6,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OVII_scaled'), units='cm**-3', function=scaled_o7
-    )
+        ('gas', 'OVII_scaled'), units='cm**-3', function=scaledO7,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OVIII_scaled'), units='cm**-3', function=scaled_o8
-    )
+        ('gas', 'OVIII_scaled'), units='cm**-3', function=scaledO8,
+        force_override=True
+        )
 
     oh.yt.add_field(
-        ('gas', 'OIX_scaled'), units='cm**-3', function=scaled_o9
-    )
+        ('gas', 'OIX_scaled'), units='cm**-3', function=scaledO9,
+        force_override=True
+        )
+
+    oh.yt.add_field(
+        ('gas', 'o_total_scaled'), units='cm**-3', function=scaledAllO,
+        force_override=True
+        )
 
     return
 

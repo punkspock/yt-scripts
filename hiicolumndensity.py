@@ -8,23 +8,35 @@ See page 1058 of Fox (2010)
 """
 
 import OH_fields as oh
-import OHmetallicity as om
-import ionfraction as ifr
-from sympy import diff, exp
-from sympy.abc import x, y
+import sys
+# import OHmetallicity as om
+# import ionfraction as ifr
+# from sympy import diff, exp
+# from sympy.abc import x, y
 
 if __name__ == "__main__":
-    ds, ad = oh.loadData(oh.file)  # load data file into yt
-    oh.addFields()  # add all the derived fields defined in oh
-    cut = oh.velocityCut(ad)
-    wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
+
+    if len(sys.argv[1]) > 1:
+        epoch = str(sys.argv[1])
+    else:
+        print("Running with default epoch.")
+        epoch = '75'
+
+    file, time, ds, ad, cut = oh.main(epoch)
+    # Myr100 = "../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100"
+    # ds, ad = oh.loadData(Myr100)
+    # oh.addFields()
+    # cut = oh.velocityCut(ad)
+
+    # wfile = open("../../Plots/%s.txt" % ("t=100Myr"), 'a')
+    wfile = open("../../Plots/%s.txt" % (time), 'a')
 
     # CALCULATE
 
     # OVI column density
     proj_x = ds.proj("OVI_number", "x", data_source=cut)  # make projection
     o6cd = proj_x["OVI_number"]  # O VI column density
-    o6cdMean = oh.np.mean(o5cd)  # mean O VI column density
+    o6cdMean = oh.np.mean(o6cd)  # mean O VI column density
 
     # oxygen abundance
     oAbundance = proj_x["o_neutral_number"] / proj_x["h_neutral_number"]
@@ -41,12 +53,13 @@ if __name__ == "__main__":
     ionFraction = proj_x["OVI_number"] / proj_x["o_total_number"]  # O VI/O
     ionFraction = ionFraction[(~oh.np.isnan(ionFraction))]
     meanFrac = oh.np.mean(ionFraction)  # average value of O VI/O
+    # maxFrac = oh.np.max(ionFraction)  # test
 
     # calculate using avg O VI/O value (that's meanFrac)
     NHII_mean = constant * (1 / meanFrac)
+    # NHII_mean = constant * (1 / maxFrac)  # test
     # massHII = (NHII / oh.A) * oh.hydro_mol / oh.M_sun  # in solar masses
     massHII = NHII_mean * oh.mHydro  # along a sightline.
-
     # N(H II) / N(H I)
     NHI = proj_x["h_neutral_number"]
     NHI_mean = oh.np.mean(NHI)

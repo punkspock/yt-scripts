@@ -497,7 +497,7 @@ if __name__ == "__main__":
     if len(sys.argv[1]) > 1:
         epoch = str(sys.argv[1])
     else:
-        epoch = 75
+        epoch = '75'
         print("Running with default epoch.")
     # get epoch as command line argument
 
