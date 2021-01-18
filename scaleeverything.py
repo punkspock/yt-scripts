@@ -12,6 +12,7 @@ import sys
 oxy_mol = oh.oxy_mol  # taking care of a bug
 A = oh.A
 
+
 def o1Number(field, ad):  # OI
     mass = ad["flash", "o   "] * ad["density"] * ad["cell_volume"]
     mols = mass / oxy_mol
@@ -19,6 +20,18 @@ def o1Number(field, ad):  # OI
 
     return particles
 
+
+# def o2Mass(field, ad):  # test
+#     mass = ad['flash', 'o1  '] * ad['density'] * ad['cell_volume']
+#
+#     return mass
+
+
+# def o2Number(field, ad):  # test
+#     mols = ad["OII_mass"] / oxy_mol
+#     particles = mols * A / ad['cell_volume']
+#
+#     return particles
 
 def o2Number(field, ad):  # OII
     mass = ad["flash", "o1  "] * ad["density"] * ad["cell_volume"]
@@ -86,6 +99,13 @@ def scaledO1(field, ad):
     return scaled
 
 
+# def scaledO2Total(field, ad):  # test
+#     total = ad['OII_number'] * ad['cell_volume']
+#     scaled = total * ad['scale']
+#
+#     return scaled
+
+
 def scaledO2(field, ad):
     scaled = ad['OII_number'] * ad['scale']
 
@@ -147,6 +167,10 @@ def addFields():
         force_override=True
         )
 
+    # oh.yt.add_field(  # test
+    #     ('gas', 'OII_mass'), units='g', function=o2Mass, force_override=True
+    #     )
+
     oh.yt.add_field(
         ('gas', 'OII_number'), units='cm**-3', function=o2Number,
         force_override=True
@@ -193,6 +217,11 @@ def addFields():
         ('gas', 'OII_scaled'), units='cm**-3', function=scaledO2,
         force_override=True
         )
+
+    # oh.yt.add_field(  # test
+    #     ('gas', 'OII_scaled_total'), units='dimensionless', function=scaledO2Total,
+    #     force_override=True
+    #     )
 
     oh.yt.add_field(
         ('gas', 'OIII_scaled'), units='cm**-3', function=scaledO3,

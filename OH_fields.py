@@ -27,8 +27,8 @@ import sys
 # file = Myr200
 # time = "t=200 Myr"
 
-oxy_mol = YTQuantity(15.9994, 'g/mol')  # oxygen molar mass
-hydro_mol = YTQuantity(1.00784, 'g/mol')  # correct value is NOT 2.016 g/mol
+oxy_mol = YTQuantity(15.9994, 'g*mol**-1')  # oxygen molar mass
+hydro_mol = YTQuantity(1.00784, 'g*mol**-1')  # correct value is NOT 2.016 g/mol
 A = YTQuantity(6.023e23, 'mol**-1')  # Avogadro's number
 M_sun = YTQuantity(2e33, 'g')
 mHydro = YTQuantity(1.67e-24, 'g')
@@ -266,7 +266,7 @@ def h1MassFraction(field, ad):
     return fraction
 
 
-def ionFraction(field, ad):
+def ionFraction(field, ad):  # don't think this is used anywhere
     """
 
     Return fraction of O VI over O.
@@ -277,57 +277,57 @@ def ionFraction(field, ad):
     return frac
 
 
-def fracAmbient(field, ad):
-    """
-
-    Calculates fraction of material in a given cell post-mixing
-    that initially came from ambient material.
-
-    """
-    A = ad["o_total_number"] / ad["h_total_number"]  # abundance
-    Ac = 0.001  # initial setting for abundance of cloud material
-    Aa = 1.00  # initial setting for abundance of ambient material
-    fa = (Ac - A) / (Ac - Aa)  # ambient fraction
-
-    return fa
-
-
-def fracCloud(field, ad):
-    """
-
-    Based on fact that fraction ambient and fraction cloud
-    must sum to one.
-
-    """
-    fc = 1 - ad["ambient_fraction"]
-
-    return fc
-
-
-def newAbundance(field, ad):
-    """
-
-    Set new abundance parameters
-
-    """
-    AcNew = 0.5  # dummy value
-    AaNew = 0.5  # dummy value
-
-    ANew = AcNew*ad["ambient_fraction"] + AaNew*ad["cloud_fraction"]
-
-    return ANew
-
-
-def changeFactor(field, ad):
-    """
-
-    A'/A
-
-    """
-    A = ad["o_total_number"] / ad["h_total_number"]
-    factor = ad["new_abundance"] / A
-
-    return factor
+# def fracAmbient(field, ad):
+#     """
+#
+#     Calculates fraction of material in a given cell post-mixing
+#     that initially came from ambient material.
+#
+#     """
+#     A = ad["o_total_number"] / ad["h_total_number"]  # abundance
+#     Ac = 0.001  # initial setting for abundance of cloud material
+#     Aa = 1.00  # initial setting for abundance of ambient material
+#     fa = (Ac - A) / (Ac - Aa)  # ambient fraction
+#
+#     return fa
+#
+#
+# def fracCloud(field, ad):
+#     """
+#
+#     Based on fact that fraction ambient and fraction cloud
+#     must sum to one.
+#
+#     """
+#     fc = 1 - ad["ambient_fraction"]
+#
+#     return fc
+#
+#
+# def newAbundance(field, ad):
+#     """
+#
+#     Set new abundance parameters
+#
+#     """
+#     AcNew = 0.5  # dummy value
+#     AaNew = 0.5  # dummy value
+#
+#     ANew = AcNew*ad["ambient_fraction"] + AaNew*ad["cloud_fraction"]
+#
+#     return ANew
+#
+#
+# def changeFactor(field, ad):
+#     """
+#
+#     A'/A
+#
+#     """
+#     A = ad["o_total_number"] / ad["h_total_number"]
+#     factor = ad["new_abundance"] / A
+#
+#     return factor
 
 
 def scale(field, ad):
@@ -443,21 +443,25 @@ def addFields():
         force_override=True
     )
 
-    yt.add_field(
-        ("ambient_fraction"), units="dimensionless", function=fracAmbient
-    )
-
-    yt.add_field(
-        ("cloud_fraction"), units="dimensionless", function=fracCloud
-    )
-
-    yt.add_field(
-        ("new_abundance"), units="dimensionless", function=newAbundance
-    )
-
-    yt.add_field(
-        ("change_factor"), units="dimensionless", function=changeFactor
-    )
+    # yt.add_field(
+    #     ("ambient_fraction"), units="dimensionless", function=fracAmbient,
+    #     force_override=True
+    # )
+    #
+    # yt.add_field(
+    #     ("cloud_fraction"), units="dimensionless", function=fracCloud,
+    #     force_override=True
+    # )
+    #
+    # yt.add_field(
+    #     ("new_abundance"), units="dimensionless", function=newAbundance,
+    #     force_override=True
+    # )
+    #
+    # yt.add_field(
+    #     ("change_factor"), units="dimensionless", function=changeFactor,
+    #     force_override=True
+    # )
 
     # add field to scale the metallicity
     yt.add_field(
