@@ -12,6 +12,7 @@ import scaleeverything as se
 import sys
 import matplotlib.pyplot as plt
 
+
 def NHII(proj_ion, cut_ion, thydro, toxy, method):
     """
     Take in projected oxygen ion number density (scaled or unscaled), oxygen
@@ -153,7 +154,7 @@ if __name__ == "__main__":
             proj_x["OI_number"], cut["OI_number"], thydro, toxy, method
             )
         wfile.write('\nUnscaled N(HI)_OI {:.2e}'.format(nhi))
-        print('HI associated with O I: {:.2e}'.format(nhi))
+        print('N(H I) associated with O I: {:.2e}'.format(nhi))
     else:
         nhi = NHII(
             proj_x["OI_number"], cut["OI_number"], thydro, toxy, method
@@ -168,6 +169,8 @@ if __name__ == "__main__":
         scaled_cut_ion = cut["%s_scaled" % ion]
         unscaled_cut_ion = cut["%s_number" % ion]
 
+        print('\n\n{}'.format(ion))
+
         if str(scale_arg) == 'scaled':
             # NHII_mean = NHII(
             #     scaled_ion, nhydro, scaled_noxy, scaled_toxy, method
@@ -177,6 +180,7 @@ if __name__ == "__main__":
                 )
             # do the same calculation but for neutral oxygen.
             # this gives the column density of H I, not H II
+            print('\nMean scaled N(HII)_{} {:.2e}'.format(ion, NHII_mean))
             wfile.write(  # record the results
                 '\nMean scaled N(HII)_{} {:.2e}'.format(ion, NHII_mean),
                 )
@@ -184,7 +188,7 @@ if __name__ == "__main__":
             NHII_mean = NHII(
                 unscaled_ion, unscaled_cut_ion, thydro, toxy, method
                 )
-            print('N(H II)_mean: {:.2e}'.format(NHII_mean))
+            print('Mean unscaled N(H II)_{}: {:.2e}'.format(ion, NHII_mean))
             wfile.write(
                 '\nMean unscaled N(HII)_{} {:.2e}'.format(
                 ion, NHII_mean),
@@ -195,10 +199,10 @@ if __name__ == "__main__":
             NHII_mean = NHII(
                 unscaled_ion, scaled_cut_ion, thydro, toxy, method
                 )
-
+            print('\nMean unscaled N(HII)_{} {:.2e}'.format(ion, NHII_mean))
             wfile.write(
                 '\nMean unscaled N(HII)_{} {:.2e}'.format(
-                ion, NHII_mean),
+                ion, NHII_mean)
                 )
 
         nhii_mean.append(NHII_mean)  # append one value per ion
@@ -206,17 +210,17 @@ if __name__ == "__main__":
         # nhii_mean is not a typical array -- it's an array of YTQuantities.
         # will not graph properly on the x-axis for the scaled runs
 
-    # nhii_total = sum(nhii_mean)  # total average column density of H II
-    # nh = nhi + nhii_total  # total average column density of all hydrogen
-    # # for comparison
-    # nh_grid = oh.np.mean(proj_x['h_total_number'])  # calculated from the grid
-    #
-    # wfile.write("\nTotal average N(H I) + N(H II): {:.2e}".format(nh))
-    # wfile.write("\nTotal average N(H) from the grid: {:.2e}".format(nh_grid))
-    #
-    # # graph of N(H II)_Oi
-    # log_nhii = oh.np.log10(nhii_mean)
-    # graph(ions, log_nhii, scale_arg, method, time)
+    nhii_total = sum(nhii_mean)  # total average column density of H II
+    nh = nhi + nhii_total  # total average column density of all hydrogen
+    # for comparison
+    nh_grid = oh.np.mean(proj_x['h_total_number'])  # calculated from the grid
+
+    wfile.write("\nTotal average N(H I) + N(H II): {:.2e}".format(nh))
+    wfile.write("\nTotal average N(H) from the grid: {:.2e}".format(nh_grid))
+
+    # graph of N(H II)_Oi
+    log_nhii = oh.np.log10(nhii_mean)
+    graph(ions, log_nhii, scale_arg, method, time)
 
     # conclude
     wfile.close()
