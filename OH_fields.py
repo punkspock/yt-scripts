@@ -70,6 +70,18 @@ def velocityCut(ad):
     return cut
 
 
+def excludeBads(ad):
+    """
+
+    Exclude cells for which total O = 0, O I = 0, or O II = 0, using a
+    cut region.
+
+    """
+    cut = ad.cut_region(["(obj['o   '] > 0.00) & (obj['o1  '] > 0)"])
+
+    return cut
+
+
 def oxyMassFraction(field, ad):
     """
     Returns fraction of total mass represented by all oxygen, neutral AND
@@ -490,6 +502,7 @@ def main(epoch):
     ds, ad = loadData(file)  # load the file in YT
     addFields()  # add all the fields
     cut = velocityCut(ad)  # do velocity cut
+    cut = excludeBads(cut)  # get rid of bad cells in the domain
 
     return file, time, ds, ad, cut
 
