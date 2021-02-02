@@ -1,17 +1,17 @@
 """
-
 Sydney Whilden
-01/26/21
+02/02/2021
 
-Calculate the mass of the cloud as the 'magician', then use the tools of the
-observer to get as close as you can to the REAL mass.
-
-Going to consider this method 2 from now on.
+Calculating the mass along a sight line using only the knowledge of H I, O II,
+O IV, O VI, and O VIII.
 
 Notes:
-- Can 'see' all oxygen ions.
+
+- Can only 'see' O II, O IV, O VI, and O VIII.
+- Assumes knowledge of metallicity and ionization fraction averaged over the
+whole cloud.
 - Calculates H II for multiple ionization levels.
-- Uses metallicity and ionization fraction for a single sight line.
+
 
 """
 
@@ -69,9 +69,9 @@ def sightlineMass(n_oi, nh_oi, mean_cell_area):  # calculate mass along a sightl
     nh = sum(nh_oi)  # total column density of all H II assoc. w/ O ions
 
     oxy_mass = no * oh.mOxy
-    print('oxy_mass: {}'.format(oxy_mass))  # test
+    # print('oxy_mass: {}'.format(oxy_mass))  # test
     hydro_mass = nh * oh.mHydro
-    print('hydro_mass: {}'.format(hydro_mass))  # test
+    # print('hydro_mass: {}'.format(hydro_mass))  # test
 
     mass = (oxy_mass + hydro_mass) * mean_cell_area
 
@@ -171,7 +171,7 @@ if __name__ == "__main__":
 
     # compute observer mass using sightlines
     proj_x = ds.proj('OI_number', 'x', data_source=cut)
-    ions = ['OI', 'OII', 'OIII', 'OIV', 'OV', 'OVI', 'OVII', 'OVIII', 'OIX']
+    ions = ['OII', 'OIV', 'OVI', 'OVIII']
     # ions = ['OVI']
 
     # generate 5 random sightline numbers
@@ -181,21 +181,6 @@ if __name__ == "__main__":
         n = random.randint(0, len(proj_x['density']))  # random sightline
         sightlist.append(n)
     print(sightlist)
-
-    # make sightlines for every ion
-    # for ion in ions:  # for every oxygen ion
-    #     proj_ion = proj_x['{}_number'.format(ion)]  # projected ion num density
-    #     proj_scaled = proj_x['{}_scaled'.format(ion)] # projected scaled ion nd
-    #
-    #     all_sightlines = nhiiSightlines(proj_ion, proj_x)  # pass it ALL data
-    #
-    #     observations = []  # final 5 sightlines
-    #     for sightline in sightlist:
-    #         nhii = all_sightlines[sightline]
-    #         observations.append(nhii)
-    #
-    #     print('\n{}:'.format(ion))
-    #     print(observations)
 
     # calculate amount of Oi and amount of H on a sightline
     cd_2d = []  # 2d array of column densities of oxygen ions for each sightline

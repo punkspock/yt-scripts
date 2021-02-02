@@ -30,8 +30,9 @@ import sys
 oxy_mol = YTQuantity(15.9994, 'g*mol**-1')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g*mol**-1')  # correct value is NOT 2.016 g/mol
 A = YTQuantity(6.023e23, 'mol**-1')  # Avogadro's number
-M_sun = YTQuantity(2e33, 'g')
-mHydro = YTQuantity(1.67e-24, 'g')
+M_sun = YTQuantity(2e33, 'g')  # solar mass
+mHydro = YTQuantity(1.67e-24, 'g')  # mass of hydrogen atom
+mOxy = YTQuantity(2.656e-23, 'g')  # mass of oxygen atom
 
 
 # FUNCTIONS
