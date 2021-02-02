@@ -30,8 +30,9 @@ import sys
 oxy_mol = YTQuantity(15.9994, 'g*mol**-1')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g*mol**-1')  # correct value is NOT 2.016 g/mol
 A = YTQuantity(6.023e23, 'mol**-1')  # Avogadro's number
-M_sun = YTQuantity(2e33, 'g')
-mHydro = YTQuantity(1.67e-24, 'g')
+M_sun = YTQuantity(2e33, 'g')  # solar mass
+mHydro = YTQuantity(1.67e-24, 'g')  # mass of hydrogen atom
+mOxy = YTQuantity(2.656e-23, 'g')  # mass of oxygen atom
 
 
 # FUNCTIONS
@@ -66,6 +67,18 @@ def velocityCut(ad):
 
     """
     cut = ad.cut_region(["obj['bulk_subtracted'] <= -100"])
+
+    return cut
+
+
+def excludeBads(ad):
+    """
+
+    Exclude cells for which total O = 0, O I = 0, or O II = 0, using a
+    cut region.
+
+    """
+    cut = ad.cut_region(["(obj['o   '] > 0.00) & (obj['o1  '] > 0)"])
 
     return cut
 
@@ -490,6 +503,7 @@ def main(epoch):
     ds, ad = loadData(file)  # load the file in YT
     addFields()  # add all the fields
     cut = velocityCut(ad)  # do velocity cut
+    cut = excludeBads(cut)  # get rid of bad cells in the domain
 
     return file, time, ds, ad, cut
 

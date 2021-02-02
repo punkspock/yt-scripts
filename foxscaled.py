@@ -12,8 +12,12 @@ import scaleeverything as se
 import sys
 import matplotlib.pyplot as plt
 
+<<<<<<< HEAD
 
 def NHII(proj_ion, cut_ion, thydro, toxy, method):
+=======
+def perSightline(proj_ion, proj_thydro, proj_toxy, method):  # either all proj or all cut
+>>>>>>> boolean_mask
     """
     Take in projected oxygen ion number density (scaled or unscaled), oxygen
     abundance, and fraction of total oxygen represented by the oxygen ion,
@@ -27,16 +31,17 @@ def NHII(proj_ion, cut_ion, thydro, toxy, method):
             oxygen
     """
 
-    o_abund = toxy / thydro  # total oxygen / total hydrogen
+    o_abund = proj_toxy / proj_thydro  # total oxygen / total hydrogen
     o_abund = o_abund[(~oh.np.isnan(o_abund)) & (
         ~oh.np.isinf(o_abund))]  # get rid of weird values
-    o_abund_mean = oh.np.mean(o_abund)  # mean oxygen abundance
+    o_abund_mean = oh.np.mean(o_abund)  # mean oxygen abundance OVER CLOUD
     print('[O/H]_mean: {:.2e}'.format(o_abund_mean))  # test
 
     ion_mean = oh.np.mean(proj_ion)  # mean column density of oxygen ion
     print('N(Oi)_mean: {:.2e}'.format(ion_mean))  # test
 
-    ion_frac = cut_ion / toxy  # fraction of O represented by that oxygen ion
+    # ionization fraction OVER CLOUD
+    ion_frac = proj_ion / proj_toxy  # fraction of O represented by that oxygen ion
     ion_frac = ion_frac[(~oh.np.isnan(ion_frac)) & (~oh.np.isinf(ion_frac))]
     mean_frac = oh.np.mean(ion_frac)  # mean ion fraction for 'us' method
     max_frac = oh.np.max(ion_frac)  # max ion fraction for 'fox' method
@@ -116,11 +121,15 @@ if __name__ == "__main__":
     # calculate HII associated with OVI
     proj_x = ds.proj("OVI_scaled", 'x', data_source=cut)  # do projection
     # scaled_noxy = proj_x['OI_scaled']  # actually don't scale this
-    unscaled_noxy = proj_x['OI_number']
-    # scaled_toxy = cut['o_total_scaled']  # actually don't scale this
+
+    # per sightline
+    proj_noxy = proj_x['OI_number']
+    proj_toxy = proj_x['o_total_number']
+    proj_thydro = proj_x['h_total_number']
+
+    # per cell
+    noxy = cut['OI_number']
     toxy = cut['o_total_number']
-    # unscaled_noxy = proj_x['o_neutral_number']  # test
-    nhydro = proj_x['h_neutral_number']  # abundance
     thydro = cut['h_total_number']
 
     # also use as labels for plot
@@ -145,19 +154,19 @@ if __name__ == "__main__":
         # nhi = NHII(
         #     proj_x["OI_number"], nhydro, scaled_noxy, scaled_toxy, method
         #     )
-        nhi = NHII(  # test
-            proj_x["OI_number"], cut["OI_number"], thydro, toxy, method
+        nhi = perSightline(  # test
+            proj_x["OI_number"], proj_thydro, proj_toxy, method
             )
         wfile.write('\nScaled N(HI)_OI {:.2e}'.format(nhi))
     elif str(scale_arg) == 'unscaled':
-        nhi = NHII(
-            proj_x["OI_number"], cut["OI_number"], thydro, toxy, method
+        nhi = perSightline(
+            proj_x["OI_number"], proj_thydro, proj_toxy, method
             )
         wfile.write('\nUnscaled N(HI)_OI {:.2e}'.format(nhi))
         print('N(H I) associated with O I: {:.2e}'.format(nhi))
     else:
-        nhi = NHII(
-            proj_x["OI_number"], cut["OI_number"], thydro, toxy, method
+        nhi = perSightline(
+            proj_x["OI_number"], proj_thydro, proj_toxy, method
             )
         wfile.write('\nUnscaled N(HI)_OI {:.2e}'.format(nhi))
     # nhi is the total average column density of H I.
@@ -166,8 +175,8 @@ if __name__ == "__main__":
     for ion in ions:  # calculation should happen in here
         scaled_ion = proj_x["%s_scaled" % ion]
         unscaled_ion = proj_x["%s_number" % ion]
-        scaled_cut_ion = cut["%s_scaled" % ion]
-        unscaled_cut_ion = cut["%s_number" % ion]
+        # scaled_cut_ion = cut["%s_scaled" % ion]  # don't use in perSightline
+        # unscaled_cut_ion = cut["%s_number" % ion]  # don't use in perSightline
 
         print('\n\n{}'.format(ion))
 
@@ -175,8 +184,8 @@ if __name__ == "__main__":
             # NHII_mean = NHII(
             #     scaled_ion, nhydro, scaled_noxy, scaled_toxy, method
             #     )
-            NHII_mean = NHII(  # test
-                scaled_ion, scaled_cut_ion, thydro, toxy, method
+            NHII_mean = perSightline(  # test
+                scaled_ion, proj_thydro, proj_toxy, method
                 )
             # do the same calculation but for neutral oxygen.
             # this gives the column density of H I, not H II
@@ -185,8 +194,8 @@ if __name__ == "__main__":
                 '\nMean scaled N(HII)_{} {:.2e}'.format(ion, NHII_mean),
                 )
         elif str(scale_arg) == 'unscaled':
-            NHII_mean = NHII(
-                unscaled_ion, unscaled_cut_ion, thydro, toxy, method
+            NHII_mean = perSightline(
+                unscaled_ion, proj_thydro, proj_toxy, method
                 )
             print('Mean unscaled N(H II)_{}: {:.2e}'.format(ion, NHII_mean))
             wfile.write(
@@ -196,8 +205,8 @@ if __name__ == "__main__":
         else:  # TODO: Fill this out to deal with invalid arg
 
             # defaults to unscaled.
-            NHII_mean = NHII(
-                unscaled_ion, scaled_cut_ion, thydro, toxy, method
+            NHII_mean = perSightline(
+                unscaled_ion, proj_thydro, proj_toxy, method
                 )
             print('\nMean unscaled N(HII)_{} {:.2e}'.format(ion, NHII_mean))
             wfile.write(

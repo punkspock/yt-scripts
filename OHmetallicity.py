@@ -9,13 +9,19 @@ oxygen abundance [O/H], from [O I/ H I]
 
 import OH_fields as oh
 
-
+# TODO: set this up to run unscaled OR scaled
 if __name__ == "__main__":
 
-    ds, ad = oh.loadData(oh.file)
-    oh.addFields()
-    cut = oh.velocityCut(ad)
-    wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
+    # get epoch from command line arg
+    if len(sys.argv[1]) > 1:
+        epoch = str(sys.argv[1])
+    else:
+        epoch == '100'  # default to 100 Myr epoch
+
+    file, time, ds, ad, cut = oh.main(epoch)
+    # se.main()  # add all the scaled fields
+    # ^ not yet. this script can't do anything with them yet.
+    wfile = open("../../Plots/%s.txt" % (time), 'a')
 
     # COLUMN DENSITY CALCULATIONS
     # Should probably change these to neutral numbers. Check on that.
