@@ -1,0 +1,8 @@
+"""
+Sydney Whilden
+02/04/2021
+
+Calculating the mass along a sight line using several different methodologies.
+Aims to combine scripts cloud_mass.py, cloud_mass2.py, and cloud_mass3.py.
+
+"""
