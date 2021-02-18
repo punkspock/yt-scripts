@@ -37,14 +37,15 @@ if __name__ == "__main__":
     wfile = open("../../Plots/%s.txt" % (time), 'a')
 
     # choose random cell.
-    n = random.randint(0, len(cut['density']))  # the cell is called n
+    # n = random.randint(0, len(cut['density']))  # the cell is called n
+    n = 273
 
     # total number of hydrogen atoms
     total_h = cut['h_total_number'][n] * cut['cell_volume'][n]
 
     # hydrogen column density
     h_cd = cut['h_total_number'][n] * cut['dx'][n]
-    print('H II column density from domain: {:.2e}'.format(h_cd))
+    print('H II column density from domain: {}'.format(h_cd))
 
     # hydrogen associated with one oxygen ion
     o6_cd = cut['OVI_number'][n] * cut['dx'][n]
@@ -53,7 +54,7 @@ if __name__ == "__main__":
 
     nhii = o6_cd / (metallicity * ion_frac)
 
-    print('H II column density associated with O VI: {:.2e}'.format(nhii))
+    print('H II column density associated with O VI: {}'.format(nhii))
 
 
     # conclude

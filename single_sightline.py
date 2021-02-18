@@ -24,6 +24,7 @@ import scaleeverything as se
 import sys
 import random
 import matplotlib.pyplot as plt
+oh.yt.funcs.mylog.setLevel(50)
 
 
 def hNum(field, ad):
@@ -55,15 +56,21 @@ if __name__ == "__main__":
     proj_x2 = ds.proj('OI_number', 'x', method='sum', data_source=cut)
 
     # pick random sight line
-    n = random.randint(0, len(proj_x['density']))
+    # n = random.randint(0, len(proj_x['density']))
+    n = 1220
 
     # total number of hydrogen atoms
     total_h = proj_x2['h_num'][n]
     print('Total hydrogen atoms on sight line: {:.2e}'.format(total_h))
 
+    cell_area = cut['dy'] * cut['dz']  # test
+    mean_cell_area = oh.np.mean(cell_area)
+
     # total column density of of hydrogen atoms
     cd_h = proj_x['h_total_number'][n]
     print('Total number density of hydrogen on sight line: {}'.format(cd_h))
+    cd_h_mass = cd_h * oh.mHydro * mean_cell_area  # test
+    print(cd_h_mass)
 
     # H II along the sight line associated with O VI
     cd_o6 = proj_x['OVI_number'][n]
@@ -74,6 +81,8 @@ if __name__ == "__main__":
     print(
         'Column density of hydrogen associated with O VI: {}'.format(nhii)
         )
+    nhii_mass = nhii * oh.mHydro * mean_cell_area  # test
+    print(nhii_mass)
 
     # conclude
     wfile.close()
