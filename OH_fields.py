@@ -29,9 +29,9 @@ import sys
 
 oxy_mol = YTQuantity(15.9994, 'g*mol**-1')  # oxygen molar mass
 hydro_mol = YTQuantity(1.00784, 'g*mol**-1')  # correct value is NOT 2.016 g/mol
-A = YTQuantity(6.023e23, 'mol**-1')  # Avogadro's number
+A = YTQuantity(6.0221413e23, 'mol**-1')  # Avogadro's number
 M_sun = YTQuantity(2e33, 'g')  # solar mass
-mHydro = YTQuantity(1.67e-24, 'g')  # mass of hydrogen atom
+mHydro = YTQuantity(1.6735575e-24, 'g')  # mass of hydrogen atom
 mOxy = YTQuantity(2.656e-23, 'g')  # mass of oxygen atom
 
 
@@ -71,6 +71,18 @@ def velocityCut(ad):
     return cut
 
 
+def badField(field, ad):
+    """
+
+    Make a product of all the mass fractions of oxygen ions and hydrogen.
+
+    """
+    product = ad['o   '] * ad['o1  '] * ad['o2  '] * ad['o3  '] * ad['o4  '] * \
+        ad['o5  '] * ad['o6  '] * ad['o7  '] * ad['o8  '] * ad['h   ']
+
+    return product
+
+
 def excludeBads(ad):
     """
 
@@ -78,7 +90,7 @@ def excludeBads(ad):
     cut region.
 
     """
-    cut = ad.cut_region(["(obj['o   '] > 0.00) & (obj['o1  '] > 0)"])
+    cut = ad.cut_region(["(obj['product'] != 0.00)"])
 
     return cut
 
@@ -208,8 +220,9 @@ def hNumber(field, ad):
     """
     Calculate number density of all hydrogen in a cell.
     """
-    mols = ad["h_total_mass"] / hydro_mol
-    particles = mols * A / ad["cell_volume"]
+    # mols = ad["h_total_mass"] / hydro_mol
+    # particles = mols * A / ad["cell_volume"]
+    particles = ad['h   '] * ad['density'] * A / hydro_mol  # test
 
     return particles
 
@@ -479,6 +492,11 @@ def addFields():
     # add field to scale the metallicity
     yt.add_field(
         ("gas", "scale"), units='dimensionless', function=scale,
+        force_override=True
+    )
+
+    yt.add_field(
+        ("gas", "product"), units='dimensionless', function=badField,
         force_override=True
     )
 
