@@ -15,16 +15,41 @@ from datetime import datetime
 oh.yt.funcs.mylog.setLevel(50)
 
 
-def nhMagic(data, ion):
+def nhMagic(data, avg_depth):  # don't use projected data, please.
     """
 
-    Average N(H) across whole cloud.
+    The average number density of hydrogen from the domain multiplied by the
+    average depth of the cloud to get an average column density of hydrogen
+    over the whole cloud.
+
+    """
+    cell_volume = data['cell_volume']
+    h_nd = oh.np.mean(data['h_total_number'])  # total number density
+
+    avg_nh = h_nd * avg_depth
+
+    return avg_nh
+
+
+def nhCloud1(data, ion, scale_arg, avg_depth):
+    """
+
+    Input data source; output is average N(H) for whole cloud associated with
+    a particular oxygen ion.
+
+    Parameters:
+        data (data obj): Probably cut or proj_x
+        ion (str): Name of oxygen ion.
+        scale_arg: Scale argument from command line.
+        avg_depth: Average depth of the cloud, obtained using the 'sum' method
+            in a projection.
 
     """
 
+    # column density of oxygen ion in cell
     if scale_arg == 'unscaled':
-        nd_ion = data['{}_number'.format(ion)]
-        o_total = data['o_total_number']
+        nd_ion = data['{}_number'.format(ion)]  # number density
+        o_total = data['o_total_number']  # number density
     elif scale_arg == 'scaled':
         nd_ion = data['{}_scaled'.format(ion)]
         o_total = data['o_total_scaled']
@@ -32,72 +57,37 @@ def nhMagic(data, ion):
         nd_ion = data['{}_number'.format(ion)]
         o_total = data['o_total_number']
 
-    # oxygen atoms of a particular ion * average depth of cloud / cloud volume
-    # 1. Total number of that oxygen ion in cloud.
-    cell_number = nd_ion * data['cell_volume']  # total number in each cell
-    cloud_number = sum(cell_number)  # total # of that ion in the cloud
+    cell_volume = data['cell_volume']
+    cloud_volume = sum(data['cell_volume'])
+    h_nd = data['h_total_number']  # number density
 
-    # 2. Average depth in number of cells
-    proj_x2 = ds.proj('OI_number', 'x', method='sum', data_source=data)
-    avg_depth = oh.np.mean(proj_x2['dx'])
+    # average column density of that ion over the whole cloud
+    avg_nd_ion = oh.np.mean(nd_ion)  # mean number density of that oxygen ion
+    avg_cd_ion = avg_nd_ion * avg_depth  # avg number density * avg cloud depth
 
-    
+    # metallicity for whole cloud
+    all_o = sum(o_total * cell_volume)  # total number of oxygen atoms
+    all_h = sum(h_nd * cell_volume)  # total number hydrogen atoms
+    met = all_o / all_h  # ratio of the two
 
-    return
+    # ionization fraction for the whole cloud
+    all_ion = sum(nd_ion * cell_volume)
+    ion_frac = all_ion / all_o
+
+    nh = avg_cd_ion / (met * ion_frac)
+
+    return nh
 
 
-def nhMean(data, ion, scale_arg):
-    """
+def method1(data, scale_arg, avg_depth):
+    ions = ['OVI']
+    nh_list = []
+    for ion in ions:
+        nh_ion = nhCloud1(data, ion, scale_arg, avg_depth)
+        nh_list.append(nh_ion)
+    nh = sum(nh_list)
 
-    Input data source; output is average N(H) for whole cloud.
-
-    Parameters:
-        data (data obj): Probably cut or proj_x
-        ion (str): Name of oxygen ion.
-        cell (int): Number of cell to calculate for.
-        scale_arg: Scale argument from command line.
-
-    """
-
-    # column density of oxygen ion in cell
-    if scale_arg == 'unscaled':
-        nd_cloud = data['{}_number'.format(ion)]
-        o_total = data['o_total_number']
-    elif scale_arg == 'scaled':
-        nd_cloud = data['{}_scaled'.format(ion)]
-        o_total = data['o_total_scaled']
-    else:
-        nd_cloud = data['{}_number'.format(ion)]
-        o_total = data['o_total_number']
-
-    # average column density of ion for whole cloud
-    depth = cut['dx']
-    cd_ion = nd_ion * depth # can be scaled or unscaled
-    cd_ion_mean = oh.np.mean(cd_ion)
-    # ^ this is an array
-
-    cd_mean = oh.np.mean(cd_cloud)
-    # print('cd_cell: {}'.format(cd_cell))
-
-    # mean metallicity/oxygen abundance for whole cloud
-    met = o_total / data['h_total_number']
-    # get rid of ~1000 weird values
-    met = met[(~oh.np.isnan(met)) & (~oh.np.isinf(met))]
-    met_mean = oh.np.mean(met)  # take avg value
-    # print('met_mean: {}'.format(met_mean))
-
-    # mean ionization fraction for whole cloud
-    ion_frac =  nd_cloud / o_total
-    # get rid of ~1000 weird values
-    ion_frac = ion_frac[(~oh.np.isnan(ion_frac)) & (~oh.np.isinf(ion_frac))]
-    ion_frac_mean = oh.np.mean(ion_frac) # take avg value
-    # print('ion_frac_mean: {}'.format(ion_frac_mean))
-
-    # N(H II)_ion
-    nhii_cell = cd_mean / (ion_frac_mean * met_mean)
-    # print('nhii_cell: {}'.format(nhii_cell))
-
-    return nhii
+    return nh
 
 
 if __name__ == "__main__":
@@ -107,9 +97,14 @@ if __name__ == "__main__":
     else:
         epoch = 75  # default to 75 Myr
 
+    if len(sys.argv[2]) > 1:
+        method = sys.argv[2]
+    else:
+        method == 'all'
+
     # find out whether to scale
-    if len(sys.argv[2]) > 1:  # command line argument for scaling
-        scale_arg = sys.argv[2]
+    if len(sys.argv[3]) > 1:  # command line argument for scaling
+        scale_arg = sys.argv[3]
     else:
         scale_arg = 'unscaled'
 
@@ -120,14 +115,28 @@ if __name__ == "__main__":
     wfile.write("\n\n{}".format(datetime.today().ctime()))
     wfile.write("\n{}".format(scale_arg))
 
-    # FROM DOMAIN ("magic" method)
-    mean_h = oh.np.mean(cut['h_total_number'])  # average number density
-    mean_dx = oh.np.mean(cut['dx'])  # average cell depth
-    cloud_vol = sum(cut['cell_volume'])  # total cloud volume
-    magic_nh = mean_h * mean_dx / cloud_vol
-    wfile.write('Average N(H) from domain: {}'.format(magic_nh))
+    # get the average depth of the cloud; project using sum method
+    proj_x2 = ds.proj('OI_number', 'x', method='sum', data_source=cut)
+    depth = proj_x2['dx']
+    depth = depth[depth != 0]  # exclude zeroes; very important
+    avg_depth = oh.np.mean(depth)
 
-    # METHOD 1
-    ions = ['OI', 'OII', 'OIII', 'OIV', 'OV', 'OVI', 'OVII', 'OVIII', 'OIX']
-    for ion in ions:
-        nh = nhMean(cut, ion, scale_arg)
+    if method == 'magic':
+        wfile.write('\nWhole cloud:')
+        magic_nh = nhMagic(cut, avg_depth)
+        wfile.write('\n\t\"Magic\" average N(H): {}'.format(magic_nh))
+    elif method == 'method1':
+        wfile.write('\nWhole cloud:')
+        nh1 = method1(cut, scale_arg, avg_depth)
+        wfile.write('\n\tMethod 1 N(H): {}'.format(nh1))
+    elif method == 'all':
+        wfile.write('\nWhole cloud:')
+        magic_nh = nhMagic(cut, avg_depth)
+        nh1 = method1(cut, scale_arg, avg_depth)
+        wfile.write('\n\t\"Magic\" average N(H): {}'.format(magic_nh))
+        wfile.write('\n\tMethod 1 N(H): {}'.format(nh1))
+    else:
+        print('Invalid method.')
+
+# conclude
+wfile.close()
