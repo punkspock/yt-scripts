@@ -49,13 +49,7 @@ def magicSightline(proj_x, sightline, mean_cell_area):
     for mass of hydrogen and oxygen.
 
     """
-    # mass along sight line
-<<<<<<< HEAD
-    h_mass = proj_x['h_total_number'][sightline] * oh.mHydro * mean_cell_area
-    # print('Magic h_mass: {}'.format(h_mass))  # test
-    # mass along sight line
-    o_mass = proj_x['o_total_number'][sightline] * oh.mOxy * mean_cell_area
-=======
+
     # exclude zeroes!
     h_cd = proj_x['h_total_number']
     h_cd = h_cd[h_cd != 0]
@@ -65,7 +59,6 @@ def magicSightline(proj_x, sightline, mean_cell_area):
     o_cd = proj_x['o_total_number']
     o_cd = o_cd[o_cd != 0]  # exclude zeroes
     o_mass = o_cd[sightline] * oh.mOxy * mean_cell_area
->>>>>>> boolean_mask
     # print('Magic o_mass: {}'.format(o_mass))  # test
     # total mass
     total_mass = h_mass + o_mass
@@ -75,11 +68,7 @@ def magicSightline(proj_x, sightline, mean_cell_area):
 
 
 # method 1 of getting N(H II)
-<<<<<<< HEAD
-def nhiiSightline1(proj_x, ion, sightline):
-=======
 def nhiiSightline1(proj_x, ion, sightline, scale_arg):
->>>>>>> boolean_mask
     """
 
     Calculate N(H II) associated with O VI along a sight line.
@@ -91,61 +80,33 @@ def nhiiSightline1(proj_x, ion, sightline, scale_arg):
             N(H II) for.
 
     """
-<<<<<<< HEAD
     # column density of oxygen ion
-    novi = proj_x['{}_number'.format(ion)][sightline]
+    noi = proj_x['{}_number'.format(ion)]
+    noi = noi[noi != 0]  # exclude zeroes
     # metallicity along sight line
-    met = proj_x['o_total_number'][sightline] / proj_x['h_total_number'][sightline]
-    # ionization fraction along sight line
-    ion_frac = novi / proj_x['o_total_number'][sightline]
+    o_total = proj_x['o_total_number']
+    o_total = o_total[o_total != 0]
 
-    nhii = novi / (met * ion_frac)
+    h_total = proj_x['h_total_number']
+    h_total = h_total[h_total != 0]  # exclude artifact zeroes in projection
+
+    met = o_total[sightline] / h_total[sightline]
+    # ionization fraction along sight line
+    ion_frac = noi[sightline] / o_total[sightline]
+
+    nhii = noi / (met * ion_frac)
 
     return nhii
 
 
 # method 1 of getting sight line mass
-def sightlineMass1(sightline, proj_x, nhii, mean_cell_area):
-=======
-    if scale_arg == 'unscaled':
-        cd_ion = proj_x['{}_number'.format(ion)]
-        o_total = proj_x['o_total_number']
-    elif scale_arg == 'scaled':
-        cd_ion = proj_x['{}_scaled'.format(ion)]
-        o_total = proj_x['o_total_scaled']
-    else:
-        cd_ion = proj_x['{}_number'.format(ion)]
-        o_total = proj_x['o_total_number']
-
-    # exclude zeroes
-    cd_ion = cd_ion[cd_ion != 0]
-    o_total = o_total[o_total != 0]
-    h_cd = proj_x['h_total_number']
-    h_cd = h_cd[h_cd != 0]
-
-    # column density of oxygen ion
-    cd_line = cd_ion[sightline]
-    # metallicity along sight line
-
-    met = o_total[sightline] / h_cd[sightline]
-    # ionization fraction along sight line
-    ion_frac = cd_line / o_total[sightline]
-
-    nhii_line = cd_line / (met * ion_frac)
-
-    return nhii_line
-
-
-# method 1 of getting sight line mass
 def sightlineMass1(sightline, proj_x, nhii, mean_cell_area, scale_arg):
->>>>>>> boolean_mask
     """
 
     Calculate the total mass along a sight line using the total N(H II) and
     knowledge of column densities of all oxygen ions.
 
     """
-<<<<<<< HEAD
 
     oxy_mass = proj_x['o_total_number'][sightline] * oh.mOxy * mean_cell_area
     # print('Calculated oxy_mass: {}'.format(oxy_mass))
@@ -153,7 +114,7 @@ def sightlineMass1(sightline, proj_x, nhii, mean_cell_area, scale_arg):
     # print('Calculated hydro_mass: {}'.format(hydro_mass))
     total_mass = oxy_mass + hydro_mass
     # print('Calculated total_mass: {}'.format(total_mass))
-=======
+
     if scale_arg == 'unscaled':
         o_total = proj_x['o_total_number']
     elif scale_arg == 'scaled':
@@ -169,36 +130,18 @@ def sightlineMass1(sightline, proj_x, nhii, mean_cell_area, scale_arg):
     print('Calculated hydro_mass: {}'.format(hydro_mass))
     total_mass = oxy_mass + hydro_mass
     print('Calculated total_mass: {}'.format(total_mass))
->>>>>>> boolean_mask
 
     return total_mass
 
 
 # method 2 of getting N(H II)
-<<<<<<< HEAD
-def nhiiSightline2(proj_x, ion, sightline):  # use projected data
-=======
 def nhiiSightline2(proj_x, ion, sightline, scale_arg, mean_cell_area):
->>>>>>> boolean_mask
     """
 
     Input projection data; output is N(H II) for a single sight line.
     A sight line is a cell of the projected data.
 
     """
-<<<<<<< HEAD
-    cd_ion = proj_x['{}_number'.format(ion)]  # projection column
-    cd_sightline = cd_ion[sightline]  # column density for just this sight line
-
-    # mean metallicity/oxygen abundance for whole cloud
-    o_abund = proj_x['o_total_number'] / proj_x['h_total_number']
-    # get rid of ~1000 weird values
-    o_abund = o_abund[(~oh.np.isnan(o_abund)) & (~oh.np.isinf(o_abund))]
-    o_abund_mean = oh.np.mean(o_abund)  # take avg value
-
-    # mean ionization fraction for whole cloud
-    ion_frac = cd_ion / proj_x['o_total_number']
-=======
 
     if scale_arg == 'unscaled':
         cd_ion = proj_x['{}_number'.format(ion)]
@@ -220,57 +163,27 @@ def nhiiSightline2(proj_x, ion, sightline, scale_arg, mean_cell_area):
 
     all_o = sum(o_total * mean_cell_area)
     all_h = sum(h_cd * mean_cell_area)
-    # mean metallicity/oxygen abundance for whole cloud
+    # metallicity/oxygen abundance for whole cloud
     met = all_o / all_h
-    # get rid of ~1000 weird values
-    met = met[(~oh.np.isnan(met)) & (~oh.np.isinf(met))]
-    met_mean = oh.np.mean(met)  # take avg value
 
-    # mean ionization fraction for whole cloud
+    # ionization fraction for whole cloud
     all_ion = sum(cd_ion * mean_cell_area)
     ion_frac = all_ion / all_o
->>>>>>> boolean_mask
-    # get rid of ~1000 weird values
-    ion_frac = ion_frac[(~oh.np.isnan(ion_frac)) & (~oh.np.isinf(ion_frac))]
-    ion_frac_mean = oh.np.mean(ion_frac) # take avg value
 
     # N(H II)_ion along a particular sight line
-<<<<<<< HEAD
-    nhii_sightline = cd_sightline / (ion_frac_mean * o_abund_mean)
+    nhii_line = cd_ion[sightline] / (met * ion_frac)
 
     return nhii_sightline
 
 
 # method 2 of getting N(H II)
-def nhiiSightline3(proj_x, ion, sightline):  # use projected data
-=======
-    nhii_line = cd_line / (ion_frac_mean * met_mean)
-
-    return nhii_line
-
-
-# method 2 of getting N(H II)
 def nhiiSightline3(proj_x, ion, sightline, scale_arg, mean_cell_area):
->>>>>>> boolean_mask
     """
 
     Input projection data; output is N(H II) for a single sight line.
-    A sight line is a cell of the projected data.
+    A sight line is a cell of the projected data. Uses max ionization fraction??
 
     """
-<<<<<<< HEAD
-    cd_ion = proj_x['{}_number'.format(ion)]  # projection column
-    cd_sightline = cd_ion[sightline]  # column density for just this sight line
-
-    # mean metallicity/oxygen abundance for whole cloud
-    o_abund = proj_x['o_total_number'] / proj_x['h_total_number']
-    # get rid of ~1000 weird values
-    o_abund = o_abund[(~oh.np.isnan(o_abund)) & (~oh.np.isinf(o_abund))]
-    o_abund_mean = oh.np.mean(o_abund)  # take avg value
-
-    # mean ionization fraction for whole cloud
-    ion_frac = cd_ion / proj_x['o_total_number']
-=======
 
     if scale_arg == 'unscaled':
         cd_ion = proj_x['{}_number'.format(ion)]
@@ -292,27 +205,13 @@ def nhiiSightline3(proj_x, ion, sightline, scale_arg, mean_cell_area):
     all_o = sum(o_total * mean_cell_area)
     all_h = sum(h_cd * mean_cell_area)
 
-    # mean metallicity/oxygen abundance for whole cloud
+    # metallicity/oxygen abundance for whole cloud
     met = all_o / all_h
-    # get rid of ~1000 weird values
-    met = met[(~oh.np.isnan(met)) & (~oh.np.isinf(met))]
-    met_mean = oh.np.mean(met)  # take avg value
 
-    all_ion = sum(cd_ion * mean_cell_area)
-    # mean ionization fraction for whole cloud
-    ion_frac = all_ion / all_o
->>>>>>> boolean_mask
-    # get rid of ~1000 weird values
-    ion_frac = ion_frac[(~oh.np.isnan(ion_frac)) & (~oh.np.isinf(ion_frac))]
-    ion_frac_mean = oh.np.max(ion_frac) # take max value
+    # max ionization fraction for whole cloud; NOT from Gnat/Sternberg
+    ion_frac = oh.np.max(cd_ion / o_total)
 
-    # N(H II)_ion along a particular sight line
-<<<<<<< HEAD
-    nhii_sightline = cd_sightline / (ion_frac_mean * o_abund_mean)
-
-    return nhii_sightline
-=======
-    nhii_line = cd_line / (ion_frac_mean * met_mean)
+    nhii_line = cd_line / (ion_frac * met)
 
     return nhii_line
 
@@ -442,8 +341,7 @@ def method4(data, sightline, scale_arg, mean_cell_area, wfile):
     wfile.write('\n\tMethod 4 N(H): {}'.format(nh4))
     wfile.write('\n\tMethod 4 mass: {}'.format(mass4))
 
-    return nh4, mass4
->>>>>>> boolean_mask
+    return nh4, mass
 
 
 # plot results of all methods
@@ -506,8 +404,6 @@ if __name__ == "__main__":
     else:
         epoch = 75  # default to 75 Myr
 
-<<<<<<< HEAD
-=======
     # select a method
     if len(sys.argv[2]) > 1:
         method = sys.argv[2]
@@ -520,16 +416,12 @@ if __name__ == "__main__":
     else:
         scale_arg = 'unscaled'
 
->>>>>>> boolean_mask
     # get all the regular stuff in there; load data, log file
     file, time, ds, ad, cut = oh.main(epoch)
     se.main()  # add all the scaled fields
     wfile = open("../../Plots/%s.txt" % (time), 'a')
     wfile.write("\n\n{}".format(datetime.today().ctime()))
-<<<<<<< HEAD
-=======
     wfile.write('\n{}'.format(scale_arg))
->>>>>>> boolean_mask
 
     # do projection
     proj_x = ds.proj('OI_number', 'x', data_source=cut)
@@ -539,12 +431,11 @@ if __name__ == "__main__":
     mean_cell_area = oh.np.mean(cell_area)
 
     # generate 5 random sight lines
-<<<<<<< HEAD
-    sightlist = sightlineList(5, len(proj_x['density']))
-=======
-    # sightlist = sightlineList(5, len(proj_x['density']))
+    density = proj_x['density']
+    density = density[density != 0]
+    # sightlist = sightlineList(5, len(density))
     sightlist = [2479, 3752, 3753]
->>>>>>> boolean_mask
+
 
     # put it all in one loop!
     magic_masses = []
@@ -552,71 +443,6 @@ if __name__ == "__main__":
     method2_masses = []
     method2_1_masses = []
     method3_masses = []
-<<<<<<< HEAD
-
-    for line in sightlist:
-        wfile.write('\n\nSightline: {}'.format(line))
-
-        # magic method
-        magic_mass = magicSightline(proj_x, line, mean_cell_area)
-        magic_masses.append(magic_mass)
-        magic_nh = proj_x['h_total_number'][line]
-        wfile.write('\n\"Magic\" N(H): {}'.format(magic_nh))
-        wfile.write('\n\"Magic\" mass: {}'.format(magic_mass))
-
-        # method 1
-        ion = 'OVI'  # only use one ion
-        nhii1 = nhiiSightline1(proj_x, ion, line)
-        wfile.write('\nMethod 1 N(H): {}'.format(nhii1))
-        mass1 = sightlineMass1(line, proj_x, nhii1, mean_cell_area)
-        method1_masses.append(mass1)
-        wfile.write('\nMethod 1 mass: {}'.format(mass1))
-
-        # method 2: "us" method
-        ions = ['OI', 'OII', 'OIII', 'OIV', 'OV', 'OVI', 'OVII', 'OVIII', 'OIX']
-        nhii_list2 = []
-        for ion in ions:
-            if ion == 'OI':
-                nhii2 = proj_x['h_neutral_number'][line]
-            else:
-                nhii2 = nhiiSightline2(proj_x, ion, line)
-            nhii_list2.append(nhii2)
-        # print('nhii_list2: {}'.format(nhii_list2))  # test
-        nhii2 = sum(nhii_list2)
-        wfile.write('\nMethod 2 N(H): {}'.format(nhii2))  # test
-        mass2 = sightlineMass1(line, proj_x, nhii2, mean_cell_area)
-        method2_masses.append(mass2)
-        wfile.write('\nMethod 2 mass: {}'.format(mass2))
-
-        # method 2.1: 'fox' method
-        nh_list2_1 = []
-        for ion in ions:
-            nh2_1 = nhiiSightline3(proj_x, ion, line)
-            nh_list2_1.append(nh2_1)
-        nh2_1 = sum(nh_list2_1)
-        mass2_1 = sightlineMass1(line, proj_x, nh2_1, mean_cell_area)
-        method2_1_masses.append(mass2_1)
-        wfile.write('\nMethod 2.1 N(H): {}'.format(nh2_1))
-        wfile.write('\nMethod 2.1 mass: {}'.format(mass2_1))
-
-        # method 3
-        ions = ['OII', 'OIV', 'OVI', 'OVIII']
-        nhii_list3 = []
-        for ion in ions:
-            nhii3 = nhiiSightline2(proj_x, ion, line)
-            nhii_list3.append(nhii3)
-        # print('nhii_list3: {}'.format(nhii_list3))  # test
-        nhii3 = sum(nhii_list3)
-        wfile.write('\nMethod 3 N(H): {}'.format(nhii3))  # test
-        mass3 = sightlineMass1(line, proj_x, nhii3, mean_cell_area)
-        method3_masses.append(mass3)
-        wfile.write('\nMethod 3 mass: {}'.format(mass3))
-
-    # plot it.
-    data = [magic_masses, method1_masses, method2_masses, method2_1_masses,\
-        method3_masses]
-    plot(sightlist, data, epoch)  # this function doesn't work yet
-=======
     method4_masses = []
 
     if method == 'magic':
@@ -678,7 +504,6 @@ if __name__ == "__main__":
             data = [magic_masses, method1_masses, method2_masses, \
                 method2_1_masses, method3_masses, method4_masses]
             # plot(sightlist, data, epoch)  # this function doesn't work yet
->>>>>>> boolean_mask
 
     # conclude
     wfile.close()
