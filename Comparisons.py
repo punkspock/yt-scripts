@@ -11,7 +11,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 yt.funcs.mylog.setLevel(50)
 
-ds = yt.load('../Data/4.2.1.density_sap_hdf5_plt_cnt_0100')
+ds = yt.load('../../Data/4.2.1.density_sap_hdf5_plt_cnt_0100')
 ad = ds.all_data()
 
 #Define constants
