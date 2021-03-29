@@ -79,6 +79,43 @@ def nhCloud1(data, ion, scale_arg, avg_depth):
     return nh
 
 
+def nhCloud4(data, ion, gs_frac, scale_arg):
+    """
+
+    Uses maximum ionization fraction from Gnat and Sternberg curves.
+
+    """
+    # column density of oxygen ion in cell
+    if scale_arg == 'unscaled':
+        nd_ion = data['{}_number'.format(ion)]  # number density
+        o_total = data['o_total_number']  # number density
+    elif scale_arg == 'scaled':
+        nd_ion = data['{}_scaled'.format(ion)]
+        o_total = data['o_total_scaled']
+    else:
+        nd_ion = data['{}_number'.format(ion)]
+        o_total = data['o_total_number']
+
+    cell_volume = data['cell_volume']
+    cloud_volume = sum(data['cell_volume'])
+    h_nd = data['h_total_number']  # number density
+
+    # average column density of that ion over the whole cloud
+    avg_nd_ion = oh.np.mean(nd_ion)  # mean number density of that oxygen ion
+    avg_cd_ion = avg_nd_ion * avg_depth  # avg number density * avg cloud depth
+
+    # metallicity for whole cloud
+    all_o = sum(o_total * cell_volume)  # total number of oxygen atoms
+    all_h = sum(h_nd * cell_volume)  # total number hydrogen atoms
+    met = all_o / all_h  # ratio of the two
+
+    # ionization fraction is gs_fracs
+
+    nh = avg_cd_ion / (met * gs_frac)
+
+    return nh
+
+
 def method1(data, scale_arg, avg_depth):
     ions = ['OVI']
     nh_list = []
@@ -88,6 +125,25 @@ def method1(data, scale_arg, avg_depth):
     nh = sum(nh_list)
 
     return nh
+
+
+def method4(data, scale_arg):
+    # method 4: Gnat & Sternberg
+    ions = ['OI', 'OII', 'OIII', 'OIV', 'OV', 'OVI', 'OVII', 'OVIII', 'OIX']
+    gs_fracs = [  # direct from G&S
+        2.6e-1, 9.61e-1, 7.95e-1, 7.27e-1, 5.06e-1, 1.96e-1, 9.94e-1,
+        4.51e-1, 9.04e-1
+        ]
+    wfile.write('\n\n\tMethod 4:')
+    nh_list4 = []
+    for ion, frac in zip(ions, gs_fracs):
+        nh4 = nhCloud4(data, ion, frac, scale_arg)
+        wfile.write('\n\t\t{}, {}'.format(ion, nh4))
+        nh_list4.append(nh4)
+    nh4 = sum(nh_list4)
+    wfile.write('\n\tMethod 4 N(H): {}'.format(nh4))
+
+    return nh4
 
 
 if __name__ == "__main__":
@@ -129,12 +185,18 @@ if __name__ == "__main__":
         wfile.write('\nWhole cloud:')
         nh1 = method1(cut, scale_arg, avg_depth)
         wfile.write('\n\tMethod 1 N(H): {}'.format(nh1))
+    elif method == 'method4':
+        wfile.write('\nWhole cloud:')
+        nh4 = method4(cut, scale_arg)
+        wfile.write('\n\tMethod 4 N(H): {}'.format(nh4))
     elif method == 'all':
         wfile.write('\nWhole cloud:')
         magic_nh = nhMagic(cut, avg_depth)
         nh1 = method1(cut, scale_arg, avg_depth)
+        nh4 = method4(cut, scale_arg)
         wfile.write('\n\t\"Magic\" average N(H): {}'.format(magic_nh))
         wfile.write('\n\tMethod 1 N(H): {}'.format(nh1))
+        wfile.write('\n\tMethod 4 N(H): {}'.format(nh4))
     else:
         print('Invalid method.')
 

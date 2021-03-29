@@ -94,7 +94,7 @@ def nhiiSightline1(proj_x, ion, sightline, scale_arg):
     # ionization fraction along sight line
     ion_frac = noi[sightline] / o_total[sightline]
 
-    nhii = noi / (met * ion_frac)
+    nhii = noi[sightline] / (met * ion_frac)
 
     return nhii
 
@@ -173,7 +173,7 @@ def nhiiSightline2(proj_x, ion, sightline, scale_arg, mean_cell_area):
     # N(H II)_ion along a particular sight line
     nhii_line = cd_ion[sightline] / (met * ion_frac)
 
-    return nhii_sightline
+    return nhii_line
 
 
 # method 2 of getting N(H II)
@@ -341,7 +341,7 @@ def method4(data, sightline, scale_arg, mean_cell_area, wfile):
     wfile.write('\n\tMethod 4 N(H): {}'.format(nh4))
     wfile.write('\n\tMethod 4 mass: {}'.format(mass4))
 
-    return nh4, mass
+    return nh4, mass4
 
 
 # plot results of all methods
@@ -412,7 +412,7 @@ if __name__ == "__main__":
 
     # to scale or not to scale?
     if len(sys.argv[3]) > 1:
-        scale_arg = sys.argv[2]
+        scale_arg = sys.argv[3]
     else:
         scale_arg = 'unscaled'
 
@@ -421,6 +421,7 @@ if __name__ == "__main__":
     se.main()  # add all the scaled fields
     wfile = open("../../Plots/%s.txt" % (time), 'a')
     wfile.write("\n\n{}".format(datetime.today().ctime()))
+    wfile.write("\n\n{}".format(method))
     wfile.write('\n{}'.format(scale_arg))
 
     # do projection
