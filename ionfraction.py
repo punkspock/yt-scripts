@@ -8,15 +8,26 @@ Calculate O VI/O and plot as a function of temperature.
 
 import OH_fields as oh  # numpy and YT are imported through this script
 import matplotlib.pyplot as plt
+import read_gnat as rg
+import sys
+import scaleeverything as se
 
 
-def ionFractionCalc(cut):
+def ionFractionCalc(cut, scale_arg):
     """
     Calculate O VI/O
     """
+    if scale_arg == 'scaled':
+        t_o = cut['o_total_scaled']
+        ovi = cut['OVI_scaled']
+    elif scale_arg == 'unscaled':
+        t_o = cut['o_total_number']
+        ovi = cut['OVI_number']
+    else:
+        t_o = cut['o_total_number']  # default to unscaled
+        ovi = cut['OVI_number']
 
-    t_o = cut["o_total_number"]
-    ionFraction = cut["OVI_number"] / t_o
+    ionFraction = ovi / t_o
 
     return ionFraction
 
@@ -32,7 +43,7 @@ def ionFractionNew(cut):
     return ionFraction
 
 
-def plot(x, y):
+def plot(x, y, epoch):
     """
     Makes basic scatter plot of log O VI/O over log T
 
@@ -47,8 +58,8 @@ def plot(x, y):
     plt.xlabel("log T (K)")
     plt.ylabel("log (O VI/O)")
     plt.xlim(0, 8)
-    plt.title("O VI/O Over Temperature, %s" % (oh.time))
-    plt.savefig("../../Plots/ion_fraction_%s.png" % (oh.time))
+    plt.title("O VI/O Over Temperature, t={}".format(epoch))
+    plt.savefig('../../Plots/ion_fraction_{}.png'.format(epoch))
     plt.close()
 
 
@@ -84,18 +95,29 @@ def express3(x, y):
 
 
 if __name__ == "__main__":
-    ds, ad = oh.loadData(oh.file)  # load data file into yt
-    oh.addFields()  # add all the derived fields defined in oh
-    cut = oh.velocityCut(ad)
-    wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
+    # ds, ad = oh.loadData(oh.file)  # load data file into yt
+    # oh.addFields()  # add all the derived fields defined in oh
+    # cut = oh.velocityCut(ad)
+    # wfile = open("../../Plots/%s.txt" % (oh.time), 'a')
+    #
+    # # CALCULATE
+    # q = input("Are you changing the abundance? (y/n): ")
+    # if q == "n":
+    #     ionFraction = ionFractionCalc(cut)
+    # elif q == "y":
+    #     ionFraction = ionFractionNew(cut)
 
-    # CALCULATE
-    q = input("Are you changing the abundance? (y/n): ")
-    if q == "n":
-        ionFraction = ionFractionCalc(cut)
-    elif q == "y":
-        ionFraction = ionFractionNew(cut)
+    if len(sys.argv[1]) > 1:
+        epoch = sys.argv[1]
 
+    if len(sys.argv[2]) > 1:
+        scale_arg = sys.argv[2]
+
+    file, time, ds, ad, cut = oh.main(epoch)
+    se.main()
+    wfile = open('../../Plots/{}.txt'.format(epoch), 'a')
+
+    ionFraction = ionFractionCalc(cut, scale_arg)
     logIonFraction = oh.np.log10(ionFraction)
     logIonFraction = logIonFraction[(~oh.np.isnan(logIonFraction)) & (
         ~oh.np.isinf(logIonFraction))]
@@ -110,7 +132,7 @@ if __name__ == "__main__":
     logTemp = oh.np.log10(cut["temperature"])
 
     # make basic plot of the curve BEFORE doing polyfit
-    plot(logTemp, logIonFraction)
+    plot(logTemp, logIonFraction, epoch)
 
     # necessary for polyfit.
     lT = logTemp[(~oh.np.isnan(logTemp)) & (~oh.np.isinf(logTemp))]
@@ -134,16 +156,24 @@ if __name__ == "__main__":
         y = a*i**5 + b*i**4 + c*i**3 + d*i**2 + e*i + f
         logCurve.append(y)
 
+    # Read in Gnat & Sternberg data
+    df = rg.readGnat()
+    gnat_x, gnat_y = rg.logData(df)
+
     fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
     ax.scatter(logTemp, logIonFraction)  # use "old" versions of the arrays
-    ax.plot(x, logCurve, c='r', linewidth=4)
-    plt.title("Polynomial fit of log(T) to log(O VI/O), %s" % (oh.time))
-    plt.xlabel("log(T)")
-    plt.ylabel("log(O VI/O)")
-    plt.savefig("../../Plots/curve_%s.png" % (oh.time))
+    ax.plot(x, logCurve, c='r', linewidth=4, label='Simulation')
+    ax.plot(gnat_x, gnat_y, c='c', linewidth=4, label='Gnat & Sternberg (2007)')
+    ax.set_xlim(3.0, 6.5)
+    ax.set_ylim(-4.0, 0)
+    ax.set_title('O VI/O vs temperature, t={} Myr'.format(epoch))
+    ax.set_xlabel("log(T)")
+    ax.set_ylabel("log(O VI/O)")
+    ax.legend()
+    plt.savefig("../../Plots/curve_t={} Myr.png".format(epoch))
     plt.close()
 
-    f = open('coefficients_%s.txt' % (oh.time), 'w')
+    f = open('coefficients_t={}'.format(epoch), 'w')
     f.write("{},{},{},{},{},{}".format(a, b, c, d, e, f))
     f.close()

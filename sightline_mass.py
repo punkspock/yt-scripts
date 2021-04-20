@@ -344,6 +344,33 @@ def method4(data, sightline, scale_arg, mean_cell_area, wfile):
     return nh4, mass4
 
 
+def sembach(proj_x, sightline, scale_arg, mean_cell_area, wfile):
+    wfile.write('\n\nSightline: {}'.format(sightline))
+    ion = 'OVI'
+    fovi = 0.2  # from sembach; this is just the ionization fraction
+    wfile.write('\n\n\tSembach method: ')
+    oh_solar = 5.45e-4  # sembach 2003 solar oxygen abundance
+    Z = 0.1
+    if scale_arg == 'unscaled':
+        cd_ion = proj_x['{}_number'.format(ion)]
+    elif scale_arg == 'scaled':
+        cd_ion = proj_x['{}_scaled'.format(ion)]
+    else:
+        cd_ion = proj_x['{}_number'.format(ion)]
+
+    cd_ion = cd_ion[cd_ion != 0]
+    cd_line = cd_ion[sightline]
+
+    nh_sembach = cd_line / (Z * fovi * oh_solar)
+    mass_sembach = nh_sembach * oh.mHydro * mean_cell_area
+
+    wfile.write('\n\tSembach N(H II)_OVI: {}'.format(nh_sembach))
+    wfile.write('\n\tSembach Mass(H II)_OVI: {}'.format(mass_sembach))
+
+    return nh_sembach, mass_sembach
+
+
+
 # plot results of all methods
 def plot(sightlines, data, epoch):
     """
@@ -355,6 +382,7 @@ def plot(sightlines, data, epoch):
         epoch (int): Which epoch you're graphing. Command line argument.
 
         *** DOESN'T WORK ***
+        wait no now i think it does
     """
     sightlines = sightlines  # cut it down to 1 sight lines :(
 
@@ -392,6 +420,43 @@ def plot(sightlines, data, epoch):
     plt.xticks(ind + width / 2, labels)
     plt.legend(loc='best')
     plt.savefig('../../Plots/magic_vs_calc_mass_{}.png'.format(str(epoch)))
+
+    return
+
+
+def plot_sembach(data, sightlines, epoch):
+    """
+
+    Plot a comparison of sightline column densities of H II using Sembach method
+    and method 1.
+
+    """
+    nh_s_vals = data[0]
+    nh1_vals = data[1]
+
+    N = len(sightlines)
+    ind = oh.np.arange(N)
+    width = 0.15
+
+    labels = []
+    for line in sightlines:
+        labels.append(str(line))
+
+    # fig, ax = plt.subplots(nrows=1, ncols=1)
+    # ax.bar(ind, nh_s_vals, label='Sembach')
+    # ax.bar(ind + width, nh1_vals, label='Method 1')
+    # ax.set_xticks(ind + width / 2, labels)
+    # ax.set_ylabel('$N(H II)_{O VI}$')
+    # ax.set_yscale('log')
+    # ax.legend(loc='best')
+    plt.bar(ind, nh_s_vals, width, label='Sembach')
+    plt.bar(ind + width, nh1_vals, width, label='Method 1')
+    plt.xticks(ind + width / 2, labels)
+    plt.ylabel('$N(H II)_{O VI}$')
+    plt.yscale('log')
+    plt.title('Sembach vs. Method 1')
+    plt.legend(loc='best')
+    plt.savefig('../../Plots/sembach_comparison_t={}Myr.png'.format(epoch))
 
     return
 
@@ -445,6 +510,7 @@ if __name__ == "__main__":
     method2_1_masses = []
     method3_masses = []
     method4_masses = []
+    sembach_masses = []
 
     if method == 'magic':
         for line in sightlist:
@@ -475,6 +541,21 @@ if __name__ == "__main__":
             nh4, mass4 = method4(
                 proj_x, line, scale_arg, mean_cell_area, wfile
             )
+    elif method == 'sembach':
+        nh_s_vals = []
+        nh1_vals = []
+        for line in sightlist:
+            nh_sembach, mass_sembach = sembach(
+                proj_x, line, scale_arg, mean_cell_area, wfile
+                )
+            nh1, mass1 = method1(
+                proj_x, line, scale_arg, mean_cell_area, wfile
+                )
+            nh_s_vals.append(nh_sembach)
+            nh1_vals.append(nh1)
+        # plot it
+        data = [nh_s_vals, nh1_vals]
+        plot_sembach(data, sightlist, epoch)
     elif method == 'all':
         for line in sightlist:
             magic_nh, magic_mass = magicMethod(
@@ -500,10 +581,15 @@ if __name__ == "__main__":
                 proj_x, line, scale_arg, mean_cell_area, wfile
             )
             method4_masses.append(mass4)
+            nh_sembach, mass_sembach = sembach(
+                proj_x, line, scale_arg, mean_cell_area
+            )
+            sembach_masses.append(mass_sembach)
 
             # plot it.
             data = [magic_masses, method1_masses, method2_masses, \
-                method2_1_masses, method3_masses, method4_masses]
+                method2_1_masses, method3_masses, method4_masses, \
+                sembach_masses]
             # plot(sightlist, data, epoch)  # this function doesn't work yet
 
     # conclude
