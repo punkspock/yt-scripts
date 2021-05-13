@@ -26,7 +26,7 @@ Mrk501 = Sightline('Mrk 501', 10.7e18, 6.46e13)
 Mrk506 = Sightline('Mrk 506', 4.4e18, 11.2e13)
 Mrk817 = Sightline('Mrk 817', 32.4e18, 7.59e13)
 Mrk876 = Sightline('Mrk 876', 19.9e18, 11.2e13)
-PG1259 = Sightline('PG 1259+593', 89.5e18, 11.2e13)
+PG1259 = Sightline('PG 1259+593', 89.5e18, 5.25e13)
 PG1351 = Sightline('PG 1351+640', 59.6e18, 5.68e13)
 PG1626 = Sightline('PG 1626+554', 26.9e18, 16.6e13)
 
@@ -48,9 +48,9 @@ def totalH(sightline, met, ion_frac):
     novi = sightline.novi
 
     nhii = novi / (met * ion_frac)
-    H = nhii + nhi
+    # H = nhii + nhi
 
-    return H
+    return nhii
 
 
 if __name__ == "__main__":
@@ -79,6 +79,8 @@ if __name__ == "__main__":
     ion_frac = all_ovi / all_o
     print("Ionization fraction O VI/O: {}".format(ion_frac))
 
+    sembach_if = 0.2  # sembach ionization fraction
+
     # mean scaled metallicity
     all_h = oh.np.sum(proj_x['h_total_number'])
     # all_h = all_h[all_h != 0]
@@ -91,11 +93,21 @@ if __name__ == "__main__":
     print("N(H I)/N(O VI): {}".format(ratio))
 
     H_list = []  # initialize
+    sembach_Hlist = []
 
     for line in lines:
         H = totalH(line, sembach_met, ion_frac)
+        sembach_H = totalH(line, sembach_met, sembach_if)
         H_list.append(H)
-        wfile.write("\n\n{}: {}".format(line.name, H))
+        sembach_Hlist.append(sembach_H)
+        wfile.write("\n\nOur method: {}: {}".format(line.name, H))
+        wfile.write("\nSembach method: {}".format(sembach_H))
+
+    log_H = []
+    log_sembach_H = []
+    for H, sembach_H in zip(H_list, sembach_Hlist):
+        log_H.append(oh.np.log10(H))
+        log_sembach_H.append(oh.np.log10(sembach_H))
 
     # make list of line names
     line_names = []
@@ -112,17 +124,24 @@ if __name__ == "__main__":
     # total_H_mass = oh.mHydro * total_H
     # wfile.write("\nTotal H mass: {}".format(total_H_mass))
 
-    # # plot
-    # fig, ax = plt.subplots(nrows=1, ncols=1)
-    # N = len(lines)
-    # ind = oh.np.arange(N)
-    # width = 0.5
-    # ax.bar(ind, H_list, width)
-    # ax.set_xticks(ind)
-    # ax.set_xticklabels(line_names)
-    # ax.set_title('Sembach (2003) sightlines')
-    # ax.set_yscale('log')
-    # plt.savefig('../../Plots/sembachsightlines.png')
+    # plot
+    fig, ax = plt.subplots(nrows=1, ncols=1, figsize=(15, 4))
+    N = len(lines)
+    ind = oh.np.arange(N)
+    width = 0.2
+    ax.bar(ind, H_list, width, label='Us')
+    ax.bar(ind + width, sembach_Hlist, width, label='Sembach')
+    ax.bar(ind + 2 * width, line_nhi, width, label='N(H I)')
+    # ax.bar(ind, log_H, width, label='Us')
+    # ax.bar(ind + width, log_sembach_H, width, label='Sembach')
+    ax.set_xticks(ind + 0.5 * width)
+    ax.set_xticklabels(line_names)
+    ax.set_title('Sembach (2003) sightlines')
+    ax.set_yscale('log')
+    ax.set_ylabel(r'$N(H\ II)_{O\ VI}\ (cm^{-2})$')
+    ax.set_xlabel('Sightlines')
+    ax.legend()
+    plt.savefig('../../Plots/sembachsightlines.png')
     #
     # # for plotting
     # x = oh.np.arange(0, oh.np.max(line_novi), 1e6)
