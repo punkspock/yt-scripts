@@ -53,22 +53,31 @@ def bulkSub(field, ad):
 
     """
     bulk_vel = YTQuantity(150, 'km/s')  # set bulk velocity
-    sub = ad['flash', 'velz'] - bulk_vel  # subtract bulk velocity
+    sub = ad['flash', 'velz'].in_units('km/s') - bulk_vel  # subtract bulk velocity
     # why velz and not velx or vely? How do the velocity fields work?
 
     return sub  # return velz field with bulk velocity subtracted
 
-
-def velocityCut(ad):
+def cutRegion(ad):
     """
 
-    Perform velocity cut on data set. Exclude anything with a
-    z-direction velocity (I think) greater than -50 km/s.
+    Do all the cuts in one step.
 
     """
-    cut = ad.cut_region(["obj['bulk_subtracted'] <= -100"])
+    cut = ad.cut_region(["(obj['bulk_subtracted'] <= -100) & (obj['product'] != 0)"])
 
     return cut
+
+# def velocityCut(ad):
+#     """
+#
+#     Perform velocity cut on data set. Exclude anything with a
+#     z-direction velocity (I think) greater than -50 km/s.
+#
+#     """
+#     cut = ad.cut_region(["obj['bulk_subtracted'] <= -100"])
+#
+#     return cut
 
 
 def badField(field, ad):
@@ -83,16 +92,16 @@ def badField(field, ad):
     return product
 
 
-def excludeBads(ad):
-    """
-
-    Exclude cells for which total O = 0, O I = 0, or O II = 0, using a
-    cut region.
-
-    """
-    cut = ad.cut_region(["(obj['product'] != 0.00)"])
-
-    return cut
+# def excludeBads(ad):
+#     """
+#
+#     Exclude cells for which total O = 0, O I = 0, or O II = 0, using a
+#     cut region.
+#
+#     """
+#     cut = ad.cut_region(["(obj['product'] != 0.00)"])
+#
+#     return cut
 
 
 def oxyMassFraction(field, ad):
@@ -305,6 +314,24 @@ def ionFraction(field, ad):  # don't think this is used anywhere
     return frac
 
 
+def testField(field, ad):
+    # testing something out
+    particles = ad['h   '] * A / hydro_mol * ad['density']
+
+    return particles
+
+
+def hCell(field, ad):
+    """
+
+    Calculate total number of hydrogen atoms in a cell.
+
+    """
+    atoms = ad['h_total_number'] * ad['cell_volume']
+
+    return atoms
+
+
 # def fracAmbient(field, ad):
 #     """
 #
@@ -502,6 +529,16 @@ def addFields():
         force_override=True
     )
 
+    yt.add_field(
+        ("gas", "test_field"), units="cm**-3", function=testField,
+        force_override=True
+    )
+
+    yt.add_field(
+        ("gas", "h_cell_number"), units="dimensionless", function=hCell,
+        force_override=True
+    )
+
     return
 
 
@@ -522,8 +559,9 @@ def main(epoch):
 
     ds, ad = loadData(file)  # load the file in YT
     addFields()  # add all the fields
-    cut = velocityCut(ad)  # do velocity cut
-    cut = excludeBads(cut)  # get rid of bad cells in the domain
+    # cut = velocityCut(ad)  # do velocity cut
+    # cut = excludeBads(cut)  # get rid of bad cells in the domain
+    cut = cutRegion(ad)
 
     return file, time, ds, ad, cut
 

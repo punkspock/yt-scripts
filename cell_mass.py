@@ -62,11 +62,8 @@ def magicCell(data, cell):
 
 
 # method  1 of calculating N(H II) for a single cell
-<<<<<<< HEAD
-def nhiiCell1(data, ion, cell):
-=======
 def nhiiCell1(data, ion, cell, scale_arg):
->>>>>>> boolean_mask
+
     """
 
     Calculate N(H II) associated with O VI in a single cell.
@@ -75,25 +72,12 @@ def nhiiCell1(data, ion, cell, scale_arg):
         data (data object): All the cut data.
         ion (str): String name of the oxygen ion you want N(H II) assoc. w/
         cell (int): Number of cell you want the N(H II) for.
-<<<<<<< HEAD
-=======
         scale_arg : Whether the ion is to be scaled or unscaled. Passed in
             via command line.
->>>>>>> boolean_mask
 
     """
     cell_depth = data['dx'][cell]  # cm
 
-    # number density of ion
-<<<<<<< HEAD
-    nd_ion = data['{}_number'.format(ion)][cell]  # cm^-3
-    # column density of oxygen ion
-    noi = nd_ion * cell_depth  # cm^-2
-    # metallicity in cell; dimensionless
-    met = data['o_total_number'][cell] / data['h_total_number'][cell]
-    # ionization fraction along sight line
-    ion_frac = nd_ion / data['o_total_number'][cell]  # 
-=======
     if scale_arg == 'unscaled':
         nd_ion = data['{}_number'.format(ion)][cell]  # cm^-3
         o_total = data['o_total_number']
@@ -111,7 +95,6 @@ def nhiiCell1(data, ion, cell, scale_arg):
     met = o_total[cell] / data['h_total_number'][cell]
     # ionization fraction along sight line
     ion_frac = nd_ion / o_total[cell]  #
->>>>>>> boolean_mask
 
     nhii = noi / (met * ion_frac)
 
@@ -119,23 +102,14 @@ def nhiiCell1(data, ion, cell, scale_arg):
 
 
 # method 1 of getting sight line mass
-<<<<<<< HEAD
-def cellMass1(cell, data, nhii):
-=======
 def cellMass1(cell, data, nhii, scale_arg):
->>>>>>> boolean_mask
+
     """
 
     Calculate the total mass along a sight line using the total N(H II) and
     knowledge of column densities of all oxygen ions.
 
     """
-<<<<<<< HEAD
-    cell_volume = data['cell_volume'][cell]
-    cell_area = data['dy'][cell] * data['dz'][cell]  # yz-plane
-
-    oxy_mass = data['o_total_number'][cell] * oh.mOxy * cell_volume
-=======
     if scale_arg == 'unscaled':
         o_total = data['o_total_number']
     elif scale_arg == 'scaled':
@@ -147,7 +121,6 @@ def cellMass1(cell, data, nhii, scale_arg):
     cell_area = data['dy'][cell] * data['dz'][cell]  # yz-plane
 
     oxy_mass = o_total[cell] * oh.mOxy * cell_volume
->>>>>>> boolean_mask
     # print('Calculated oxy_mass: {}'.format(oxy_mass))
     # N(H II) for just one cell should be all the H II in the cell.
     hydro_mass = nhii * cell_area * oh.mHydro
@@ -159,47 +132,21 @@ def cellMass1(cell, data, nhii, scale_arg):
 
 
 # method 2 of getting N(H II)
-<<<<<<< HEAD
-def nhiiCell2(data, ion, cell):
-=======
 def nhiiCell2(data, ion, cell, scale_arg):
->>>>>>> boolean_mask
     """
 
     Input data source; output is N(H II) for a single cell.
 
-<<<<<<< HEAD
-=======
     Parameters:
         data (data obj): Probably cut or proj_x
         ion (str): Name of oxygen ion.
         cell (int): Number of cell to calculate for.
         scale_arg: Scale argument from command line.
 
->>>>>>> boolean_mask
     """
     cell_depth = data['dx'][cell]
 
     # column density of oxygen ion in cell
-<<<<<<< HEAD
-    nd_ion = data['{}_number'.format(ion)][cell]
-    cd_ion = nd_ion * cell_depth
-
-    # mean metallicity/oxygen abundance for whole cloud
-    o_abund = data['o_total_number'] / data['h_total_number']
-    # get rid of ~1000 weird values
-    o_abund = o_abund[(~oh.np.isnan(o_abund)) & (~oh.np.isinf(o_abund))]
-    o_abund_mean = oh.np.mean(o_abund)  # take avg value
-
-    # mean ionization fraction for whole cloud
-    ion_frac =  nd_ion / data['o_total_number']
-    # get rid of ~1000 weird values
-    ion_frac = ion_frac[(~oh.np.isnan(ion_frac)) & (~oh.np.isinf(ion_frac))]
-    ion_frac_mean = oh.np.mean(ion_frac) # take avg value
-
-    # N(H II)_ion along a particular sight line
-    nhii_cell = cd_ion / (ion_frac_mean * o_abund_mean)
-=======
     if scale_arg == 'unscaled':
         nd_cloud = data['{}_number'.format(ion)]
         o_total = data['o_total_number']
@@ -236,23 +183,17 @@ def nhiiCell2(data, ion, cell, scale_arg):
     # N(H II)_ion
     nhii_cell = cd_cell / (ion_frac * met)
     # print('nhii_cell: {}'.format(nhii_cell))
->>>>>>> boolean_mask
 
     return nhii_cell
 
 
-<<<<<<< HEAD
-def nhiiCell3(data, ion, cell):
-    """
-
-    Input data source; output is N(H II) for a single cell.
-
-=======
 def nhiiCell3(data, ion, cell, scale_arg):
     """
     *** UNWEIGHTED AVERAGE METALLICITY ***
 
-    Input data source; output is N(H II) for a single cell.
+    Input data source; output is N(H II) for a single cell. Uses maximum
+    ionization fraction and mean metallicity. This is different from
+    nhiiSightline3 in the sightline_mass.py script.
 
     Parameters:
         data (data obj): Probably cut or proj_x
@@ -260,18 +201,10 @@ def nhiiCell3(data, ion, cell, scale_arg):
         cell (int): Number of cell to calculate for.
         scale_arg: Whether or not to scale. Passed in from command line.
 
->>>>>>> boolean_mask
     """
     cell_depth = data['dx'][cell]
 
     # column density of oxygen ion in cell
-<<<<<<< HEAD
-    nd_ion = data['{}_number'.format(ion)][cell]
-    cd_ion = nd_ion * cell_depth
-
-    # mean metallicity/oxygen abundance for whole cloud
-    o_abund = data['o_total_number'] / data['h_total_number']
-=======
     if scale_arg == 'unscaled':
         nd_ion = data['{}_number'.format(ion)][cell]
         o_total = data['o_total_number']
@@ -287,29 +220,24 @@ def nhiiCell3(data, ion, cell, scale_arg):
 
     # mean metallicity/oxygen abundance for whole cloud
     o_abund = o_total / data['h_total_number']
->>>>>>> boolean_mask
     # get rid of ~1000 weird values
     o_abund = o_abund[(~oh.np.isnan(o_abund)) & (~oh.np.isinf(o_abund))]
     o_abund_mean = oh.np.mean(o_abund)  # take avg value
 
     # mean ionization fraction for whole cloud
-<<<<<<< HEAD
-    ion_frac =  nd_ion / data['o_total_number']
-=======
     ion_frac =  nd_ion / o_total
->>>>>>> boolean_mask
+
     # get rid of ~1000 weird values
     ion_frac = ion_frac[(~oh.np.isnan(ion_frac)) & (~oh.np.isinf(ion_frac))]
-    ion_frac_mean = oh.np.max(ion_frac) # take max value
+    ion_frac_ax = oh.np.max(ion_frac) # take max value
 
     # N(H II)_ion along a particular sight line
-    nhii_cell = cd_ion / (ion_frac_mean * o_abund_mean)
+    nhii_cell = cd_ion / (ion_frac_max * o_abund_mean)
 
     return nhii_cell
 
 
-<<<<<<< HEAD
-=======
+
 def nhiiCell4(data, ion, cell, gs_frac, scale_arg):
     """
 
@@ -436,9 +364,7 @@ def method4(data, cell, scale_arg, wfile):
     return nh4, mass4
 
 
->>>>>>> boolean_mask
 # main program
-
 if __name__ == "__main__":
 
     # get epoch from command line
@@ -447,8 +373,6 @@ if __name__ == "__main__":
     else:
         epoch = 75  # default to 75 Myr
 
-<<<<<<< HEAD
-=======
     if len(sys.argv[2]) > 1:
         method = sys.argv[2]
     else:
@@ -460,16 +384,12 @@ if __name__ == "__main__":
     else:
         scale_arg = 'unscaled'
 
->>>>>>> boolean_mask
     # get all the regular stuff in there; load data, log file
     file, time, ds, ad, cut = oh.main(epoch)
     se.main()  # add all the scaled fields
     wfile = open("../../Plots/%s.txt" % (time), 'a')
     wfile.write("\n\n{}".format(datetime.today().ctime()))
-<<<<<<< HEAD
-=======
     wfile.write("\n{}".format(scale_arg))
->>>>>>> boolean_mask
 
     # generate 5 random cells
     # cell_list = cellList(5, len(cut['density']))
@@ -483,65 +403,6 @@ if __name__ == "__main__":
     method3_masses = []
     method4_masses = []
 
-<<<<<<< HEAD
-    # do actual calculations
-    for cell in cell_list:
-        wfile.write('\n\nCell: {}'.format(cell))
-
-        # magic
-        cell_depth = cut['dx'][cell]
-        magic_nh = cut['h_total_number'][cell] * cell_depth
-        magic_mass = magicCell(cut, cell)
-        magic_masses.append(magic_mass)
-        wfile.write('\n\"Magic\" N(H): {}'.format(magic_nh))
-        wfile.write('\n\"Magic\" cell mass: {}'.format(magic_mass))
-
-        # method 1: the Eric Method
-        ion = 'OVI'
-        nh1 = nhiiCell1(cut, ion, cell)
-        mass1 = cellMass1(cell, cut, nh1)
-        method1_masses.append(mass1)
-        wfile.write('\nMethod 1 N(H): {}'.format(nh1))
-        wfile.write('\nMethod 1 cell mass: {}'.format(mass1))
-
-        # method 2: 'us' method
-        # can 'see' all ions
-        ions = ['OI', 'OII', 'OIII', 'OIV', 'OV', 'OVI', 'OVII', 'OVIII', 'OIX']
-        nh_list2 = []
-        for ion in ions:
-            nh2 = nhiiCell2(cut, ion, cell)
-            nh_list2.append(nh2)
-        nh2 = sum(nh_list2)
-        mass2 = cellMass1(cell, cut, nh2)
-        method2_masses.append(mass2)
-        wfile.write('\nMethod 2 N(H): {}'.format(nh2))
-        wfile.write('\nMethod 2 cell mass: {}'.format(mass2))
-
-        # method 2.1: 'fox' method
-        nh_list2_1 = []
-        for ion in ions:
-            nh2_1 = nhiiCell3(cut, ion, cell)
-            nh_list2_1.append(nh2_1)
-        nh2_1 = sum(nh_list2_1)
-        mass2_1 = cellMass1(cell, cut, nh2_1)
-        method2_1_masses.append(mass2_1)
-        wfile.write('\nMethod 2.1 N(H): {}'.format(nh2_1))
-        wfile.write('\nMethod 2.1 cell mass: {}'.format(mass2_1))
-
-        # method 3: limited ion access
-        ions = ['OII', 'OIV', 'OVI', 'OVIII']
-        nh_list3 = []
-        for ion in ions:
-            nh3 = nhiiCell2(cut, ion, cell)
-            nh_list3.append(nh3)
-        nh3 = sum(nh_list3)
-        mass3 = cellMass1(cell, cut, nh3)
-        method3_masses.append(mass3)
-        wfile.write('\nMethod 3 N(H): {}'.format(nh3))
-        wfile.write('\nMethod 3 cell mass: {}'.format(mass3))
-
-
-=======
     if method == 'magic':
         for cell in cell_list:
             magic_nh, magic_mass = magicMethod(cut, cell, wfile)
@@ -576,8 +437,6 @@ if __name__ == "__main__":
             nh2_1, mass2_1 = method2_1(cut, cell, scale_arg, wfile)
             nh3, mass3 = method3(cut, cell, scale_arg, wfile)
             nh4, mass4 = method4(cut, cell, scale_arg, wfile)
->>>>>>> boolean_mask
-
 
     # conclude
     wfile.close()
