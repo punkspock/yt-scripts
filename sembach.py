@@ -53,6 +53,17 @@ def totalH(sightline, met, ion_frac):
     return nhii
 
 
+def avgRatio(sightline_list):
+
+    ratios = []
+    for sightline in sightline_list:
+        ratio = sightline.nhi / sightline.novi  # H I/O VI
+        ratios.append(ratio)
+    avg = oh.np.mean(ratios)
+
+    return avg
+
+
 if __name__ == "__main__":
 
     epoch = ""  # initialize

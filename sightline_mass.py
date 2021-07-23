@@ -40,6 +40,20 @@ def sightlineList(line_number, column_number):
     return sightlist
 
 
+def allSightlines(proj_x):
+    """
+
+    Generate a list of all the sightlines.
+
+    """
+
+    all = []  # initialize
+    for number in range(len(proj_x['density'])):
+        all.append(number)
+
+    return all
+
+
 # "magic" method
 def magicSightline(proj_x, sightline, mean_cell_area):
     """
@@ -485,6 +499,9 @@ if __name__ == "__main__":
     file, time, ds, ad, cut = oh.main(epoch)
     se.main()  # add all the scaled fields
     wfile = open("../../Plots/%s.txt" % (time), 'a')
+    # CSV for all sightlines case
+    xfile = open('../../Plots/all_sightlines.csv', 'w')
+    xfile.write('Line, N(H)\n')  # headers in the csv
     wfile.write("\n\n{}".format(datetime.today().ctime()))
     wfile.write("\n\n{}".format(method))
     wfile.write('\n{}'.format(scale_arg))
@@ -500,8 +517,8 @@ if __name__ == "__main__":
     density = proj_x['density']
     density = density[density != 0]
     # sightlist = sightlineList(5, len(density))
-    sightlist = [2479, 3752, 3753]
-
+    # sightlist = [2479, 3752, 3753]  # group comparison
+    sightlist = allSightlines(proj_x)  # list is every sightline
 
     # put it all in one loop!
     magic_masses = []
@@ -521,6 +538,7 @@ if __name__ == "__main__":
             nh1, mass1 = method1(
                 proj_x, line, scale_arg, mean_cell_area, wfile
             )
+            xfile.write('{}, {}\n'.format(line, nh1))
     elif method == 'method2':
         for line in sightlist:
             nh2, mass2 = method2(
@@ -594,3 +612,4 @@ if __name__ == "__main__":
 
     # conclude
     wfile.close()
+    xfile.close()

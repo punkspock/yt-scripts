@@ -14,6 +14,7 @@ import OH_fields as oh
 import scaleeverything as se
 oh.yt.funcs.mylog.setLevel(50)
 import matplotlib.pyplot as plt
+from tqdm import tqdm
 
 def loadNCut(file):
 	'''
@@ -39,6 +40,8 @@ if __name__ == "__main__":
 	# read in all the files
 	path = '../../Data/4.2.1.density'
 	dir = listdir(path)  # list of files and subdirectories
+	wfile = open('../../Plots/if_over_time.csv', 'w')
+	wfile.write('Time, O VI, O, O VI/O')
 
 	# sort out just the files
 	only_files = []
@@ -56,8 +59,9 @@ if __name__ == "__main__":
 	# initialize arrays
 	times = []
 	ion_fracs = []
+	sembach = []  # sembach ionization fraction
 	# load each file into yt
-	for file in only_files:
+	for file in tqdm(only_files):
 		time = file[len(file) - 4:len(file)]  # last four digits
 		times.append(time)
 		full_path = '../../Data/4.2.1.density/' + file
@@ -84,15 +88,15 @@ if __name__ == "__main__":
 			ion_frac = all_ovi / all_o
 		else:
 			ion_frac = 0
-		ion_fracs.append(ion_frac)
+		# ion_fracs.append(ion_frac)
 
 		# don't need to get a mean value
 		# append to array of ionization fractions
 		ion_fracs.append(ion_frac)
 
-	fig, ax = plt.subplots(nrows = 1, ncols = 1)
-	ax.plot(times, ion_fracs)
-	ax.set_title('O VI/O over time')
-	ax.set_xlabel('Epoch')
-	ax.set_ylabel('O VI/O')
-	plt.savefig('../../Plots/if_over_time.png')
+		wfile.write('{}, {}, {}, {}\n'.format(time, all_ovi, all_o, ion_frac))
+
+	for time in times:
+		sembach.append(0.2)
+
+	wfile.close()  # conclude

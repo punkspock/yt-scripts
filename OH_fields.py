@@ -65,7 +65,8 @@ def cutRegion(ad):
     Do all the cuts in one step.
 
     """
-    cut = ad.cut_region(["(obj['bulk_subtracted'] <= -100) & (obj['product'] != 0)"])
+    Va = "-100"
+    cut = ad.cut_region(["(obj['bulk_subtracted'] <= {}) & (obj['product'] != 0)".format(Va)])
 
     return cut
 
@@ -579,3 +580,5 @@ if __name__ == "__main__":
     # get epoch as command line argument
 
     file, time, ds, ad, cut = main(epoch)
+
+    print(cut['density'][100])
