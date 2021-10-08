@@ -162,8 +162,8 @@ if __name__ == "__main__":
 
     fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
-    ax.scatter(logTemp, logIonFraction)  # use "old" versions of the arrays
-    ax.plot(x, logCurve, c='r', linewidth=4, label='Simulation')
+    ax.scatter(logTemp, logIonFraction, label='Cell')  # use "old" versions of the arrays
+    ax.plot(x, logCurve, c='r', linewidth=4, label='Simulation fit')
     ax.plot(gnat_x, gnat_y, c='c', linewidth=4, label='Gnat & Sternberg (2007)')
     ax.set_xlim(3.0, 6.5)
     ax.set_ylim(-4.0, 0)
