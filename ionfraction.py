@@ -162,14 +162,14 @@ if __name__ == "__main__":
 
     fig = plt.figure(figsize=(15, 10))
     ax = fig.add_subplot(111)
-    ax.scatter(logTemp, logIonFraction, label='Cell')  # use "old" versions of the arrays
+    ax.scatter(logTemp, logIonFraction, color='0.7',label='Cell')  # use "old" versions of the arrays
     ax.plot(x, logCurve, c='r', linewidth=4, label='Simulation fit')
     ax.plot(gnat_x, gnat_y, c='c', linewidth=4, label='Gnat & Sternberg (2007)')
-    ax.set_xlim(3.0, 6.5)
+    # ax.set_xlim(3.0, 6.5)
     ax.set_ylim(-4.0, 0)
-    ax.set_title('O VI/O vs temperature, t={} Myr'.format(epoch))
-    ax.set_xlabel("log(T)")
-    ax.set_ylabel("log(O VI/O)")
+    ax.set_title(r'O VI/O vs. Temperature, $t = {}$ Myr'.format(epoch))
+    ax.set_xlabel(r"$\log{T}$")
+    ax.set_ylabel(r"$\log{\text{(O VI/O)}}$")
     ax.legend()
     plt.savefig("../../Plots/curve_t={} Myr.png".format(epoch))
     plt.close()
