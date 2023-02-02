@@ -8,5 +8,3 @@ The repository is for code, NOT data or data products.
 
 The project is designed to be passed on to a new owner should I leave the 
 department GitLab. The code is meant to be useful for other people.
-
-This code is for working with FLASH data in the Shelton group.
